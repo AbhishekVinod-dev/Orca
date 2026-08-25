@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Ocean palette */
+  --color-ocean-950: #020B18;
+  --color-ocean-900: #061929;
+  --color-ocean-800: #0A2744;
+  --color-ocean-700: #0D3560;
+  --color-ocean-600: #104578;
+  --color-ocean-500: #1A5FA8;
+  --color-ocean-400: #2E7FD4;
+  --color-ocean-300: #6BAED6;
+  --color-ocean-200: #A8CEED;
+  --color-ocean-100: #D9EEF9;
+
+  /* Teal accents */
+  --color-teal-600: #0D9488;
+  --color-teal-500: #14B8A6;
+  --color-teal-400: #2DD4BF;
+  --color-teal-300: #5EEAD4;
+  --color-teal-200: #99F6E4;
+
+  /* Alert severities */
+  --color-alert-critical: #EF4444;
+  --color-alert-high: #F97316;
+  --color-alert-moderate: #EAB308;
+  --color-alert-low: #22C55E;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+
+  /* Background/foreground */
+  --color-background: #020B18;
+  --color-foreground: #E2EAF4;
+}
+
+:root {
+  --background: #020B18;
+  --foreground: #E2EAF4;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: rgba(10, 39, 68, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(45, 212, 191, 0.15);
+}
+
+.glass-panel {
+  background: rgba(6, 25, 41, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(45, 212, 191, 0.3);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(45, 212, 191, 0.55);
+}
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+/* Pulse glow for CTA */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(45, 212, 191, 0.3), 0 0 60px rgba(45, 212, 191, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(45, 212, 191, 0.6), 0 0 120px rgba(45, 212, 191, 0.2); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+/* Alert pulse marker */
+@keyframes alert-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  70% { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.alert-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: alert-pulse 2s ease-out infinite;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #2DD4BF 0%, #6BAED6 50%, #5EEAD4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Route draw animation */
+@keyframes route-draw {
+  from { stroke-dashoffset: 1000; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.float-anim {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Ocean wave gradient */
+.ocean-gradient {
+  background: linear-gradient(
+    180deg,
+    #020B18 0%,
+    #061929 30%,
+    #0A2744 60%,
+    #0D3560 100%
+  );
+}
+
+/* Typing cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: '|';
+  animation: blink 0.8s step-end infinite;
+  color: #2DD4BF;
+}
+
+/* Hide leaflet default styles conflicts */
+.leaflet-container {
+  background: #020B18 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(2, 11, 24, 0.8) !important;
+  color: rgba(255,255,255,0.4) !important;
+  font-size: 10px !important;
+}
+
+.leaflet-bar a {
+  background: rgba(6, 25, 41, 0.9) !important;
+  color: #2DD4BF !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+.leaflet-bar a:hover {
+  background: rgba(13, 53, 96, 0.9) !important;
+}

@@ -1,0 +1,146 @@
+// lib/mock/alertsData.ts
+// TODO: replace with call to /api/alerts for real-time INCOIS/IMD alerts
+
+export type AlertSeverity = 'critical' | 'high' | 'moderate' | 'low';
+export type AlertType = 'cyclone' | 'lightning' | 'high-wave' | 'geofence' | 'fog' | 'wind';
+
+export interface Alert {
+  id: string;
+  type: AlertType;
+  severity: AlertSeverity;
+  title: string;
+  description: string;
+  region: string;
+  coordinates: [number, number]; // [lat, lng]
+  issuedAt: string;
+  expiresAt: string;
+  source: string;
+  affectedZones: string[];
+  windSpeed?: number;
+  waveHeight?: number;
+  distance?: number; // km from user
+}
+
+export const mockAlerts: Alert[] = [
+  {
+    id: 'ALT-001',
+    type: 'cyclone',
+    severity: 'critical',
+    title: 'Cyclone Warning: Bay of Bengal',
+    description: 'Severe cyclonic storm MICHAUNG intensifying rapidly. Wind speeds exceeding 120 km/h. All fishing vessels advised to return to port immediately. Coastal communities in Tamil Nadu and Andhra Pradesh should prepare for evacuation.',
+    region: 'Bay of Bengal (N)',
+    coordinates: [13.5, 82.1],
+    issuedAt: '2026-08-25T06:00:00Z',
+    expiresAt: '2026-08-27T06:00:00Z',
+    source: 'IMD New Delhi',
+    affectedZones: ['Tamil Nadu Coast', 'Andhra Pradesh Coast', 'Puducherry'],
+    windSpeed: 120,
+    waveHeight: 8.5,
+    distance: 340,
+  },
+  {
+    id: 'ALT-002',
+    type: 'high-wave',
+    severity: 'high',
+    title: 'High Wave Alert: Arabian Sea',
+    description: 'Wave heights of 4–6 m expected along Kerala and Karnataka coastlines due to active southwest monsoon. Small vessels should not venture into the sea.',
+    region: 'Arabian Sea (SE)',
+    coordinates: [10.5, 75.8],
+    issuedAt: '2026-08-25T03:00:00Z',
+    expiresAt: '2026-08-26T03:00:00Z',
+    source: 'INCOIS Hyderabad',
+    affectedZones: ['Kerala (N)', 'Karnataka', 'Goa'],
+    waveHeight: 5.2,
+    distance: 120,
+  },
+  {
+    id: 'ALT-003',
+    type: 'lightning',
+    severity: 'high',
+    title: 'Thunderstorm & Lightning Warning',
+    description: 'Active thunderstorm cell moving NNE at 25 km/h. Lightning strikes likely within 20 km radius. Fishermen advised to return immediately and stay clear of tall masts.',
+    region: 'Gulf of Mannar',
+    coordinates: [8.9, 78.6],
+    issuedAt: '2026-08-25T09:30:00Z',
+    expiresAt: '2026-08-25T21:30:00Z',
+    source: 'IMD Chennai',
+    affectedZones: ['Gulf of Mannar', 'Tuticorin', 'Ramanathapuram'],
+    windSpeed: 45,
+    distance: 67,
+  },
+  {
+    id: 'ALT-004',
+    type: 'geofence',
+    severity: 'high',
+    title: 'Maritime Boundary Alert: International Waters',
+    description: 'Two vessels detected approaching Sri Lankan EEZ boundary. Maintain at least 5 nm buffer. Indian Navy patrol active in the region.',
+    region: 'Palk Strait',
+    coordinates: [9.4, 80.2],
+    issuedAt: '2026-08-25T07:15:00Z',
+    expiresAt: '2026-08-25T19:15:00Z',
+    source: 'Indian Coast Guard',
+    affectedZones: ['Palk Strait', 'Rameswaram', 'Mandapam'],
+    distance: 180,
+  },
+  {
+    id: 'ALT-005',
+    type: 'wind',
+    severity: 'moderate',
+    title: 'Strong Wind Advisory: Lakshadweep Sea',
+    description: 'Wind speeds of 35–45 knots expected. Medium-sized vessels should exercise caution. Safe navigation windows: 0600–1000 IST and 1600–1900 IST.',
+    region: 'Lakshadweep Sea',
+    coordinates: [10.5, 72.6],
+    issuedAt: '2026-08-25T00:00:00Z',
+    expiresAt: '2026-08-26T00:00:00Z',
+    source: 'INCOIS Hyderabad',
+    affectedZones: ['Lakshadweep Islands', 'North Kerala'],
+    windSpeed: 72,
+    distance: 420,
+  },
+  {
+    id: 'ALT-006',
+    type: 'fog',
+    severity: 'moderate',
+    title: 'Dense Fog Advisory: West Bengal Coast',
+    description: 'Visibility dropping below 200m in early morning hours (0300–0700 IST). Vessels should use foghorns and radar. Reduce speed and maintain safe distance.',
+    region: 'West Bengal Coast',
+    coordinates: [21.8, 87.6],
+    issuedAt: '2026-08-25T18:00:00Z',
+    expiresAt: '2026-08-26T08:00:00Z',
+    source: 'IMD Kolkata',
+    affectedZones: ['Haldia', 'Sagar Island', 'Paradip'],
+    distance: 890,
+  },
+  {
+    id: 'ALT-007',
+    type: 'high-wave',
+    severity: 'low',
+    title: 'Moderate Wave Forecast: Gujarat Coast',
+    description: 'Wave heights of 1.5–2.5 m expected along Saurashtra coast. Experienced fishermen may operate with caution. Monitor updates every 6 hours.',
+    region: 'Saurashtra Coast',
+    coordinates: [21.5, 69.5],
+    issuedAt: '2026-08-25T06:00:00Z',
+    expiresAt: '2026-08-26T06:00:00Z',
+    source: 'INCOIS Hyderabad',
+    affectedZones: ['Veraval', 'Porbandar', 'Dwarka'],
+    waveHeight: 2.1,
+    distance: 1100,
+  },
+];
+
+const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+export async function fetchAlerts(): Promise<Alert[]> {
+  await delay(600);
+  // TODO: replace with call to /api/alerts
+  return mockAlerts;
+}
+
+export async function fetchAlertsByRegion(region: string): Promise<Alert[]> {
+  await delay(400);
+  // TODO: replace with call to /api/alerts?region=
+  return mockAlerts.filter(a =>
+    a.region.toLowerCase().includes(region.toLowerCase()) ||
+    a.affectedZones.some(z => z.toLowerCase().includes(region.toLowerCase()))
+  );
+}
