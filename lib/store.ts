@@ -21,6 +21,9 @@ type AppState = {
   
   showGeofence: boolean;
   setShowGeofence: (show: boolean) => void;
+  
+  isLoggedIn: boolean;
+  login: () => void;
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -37,4 +40,7 @@ export const useAppStore = create<AppState>((set) => ({
   
   showGeofence: false,
   setShowGeofence: (show) => set({ showGeofence: show }),
+  
+  isLoggedIn: false,
+  login: () => set({ isLoggedIn: true }),
 }));
