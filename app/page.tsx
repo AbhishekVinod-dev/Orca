@@ -15,7 +15,7 @@ export default function PremiumLandingPage() {
       <section 
         className="w-full h-screen relative flex flex-col justify-center pl-12 md:pl-24 lg:pl-32"
         style={{
-          backgroundImage: 'url(/hero-bg.jpg)',
+          backgroundImage: 'url(/Hero-bg.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -93,8 +93,8 @@ export default function PremiumLandingPage() {
           </div>
 
           {/* Right Turtle Image */}
-          <div className="lg:w-7/12 relative min-h-[400px] md:min-h-[500px] flex items-center justify-center">
-            <img src="/turtle.png" alt="Sea Turtle" className="w-full h-auto object-contain max-w-2xl mix-blend-screen opacity-90" />
+          <div className="lg:w-7/12 relative min-h-[500px] md:min-h-[700px] flex items-center justify-center">
+            <img src="/turtle.png" alt="Sea Turtle" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] max-w-none h-auto mix-blend-screen opacity-90" />
             
             {/* Floating Glass Cards */}
             <div className="absolute top-10 right-20 bg-[#010613]/70 backdrop-blur-md border border-cyan-800/60 py-2 px-4 rounded-lg flex items-center gap-3">
@@ -170,8 +170,8 @@ export default function PremiumLandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
           
           {/* Left Whale Image */}
-          <div className="lg:w-1/2 relative min-h-[400px] flex items-center justify-center">
-             <img src="/whale.png" alt="Humpback Whale" className="w-full h-auto object-contain mix-blend-screen opacity-90 scale-110" />
+          <div className="lg:w-1/2 relative min-h-[500px] md:min-h-[700px] flex items-center justify-center">
+             <img src="/whale.png" alt="Humpback Whale" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] max-w-none h-auto mix-blend-screen opacity-90" />
           </div>
 
           {/* Right Text & Stats Grid */}
@@ -256,9 +256,9 @@ export default function PremiumLandingPage() {
 
       {/* ================= 6. JOIN THE MISSION & FOOTER ================= */}
       <div 
-        className="w-full flex flex-col"
+        className="w-full flex flex-col relative overflow-hidden"
         style={{
-          backgroundImage: 'url(/footer-bg.jpg)',
+          backgroundImage: 'url(/footer-bg.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
