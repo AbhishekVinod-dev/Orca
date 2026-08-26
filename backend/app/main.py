@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse
 load_dotenv()
 
 from app.argo_data import ARGO_ZONES
+from app.gdacs_client import fetch_active_cyclones
 from app.mock_alerts import MOCK_ALERTS
 from app.open_meteo_client import fetch_conditions
 from app.pipeline import stream_chat_pipeline
@@ -47,11 +48,19 @@ async def _enrich_alert(record: dict) -> Alert:
 
 @app.get("/api/alerts")
 async def get_alerts() -> list[Alert]:
-    # TODO: swap title/description/severity/source for a real IMD-backed
-    # client once API access is granted (see docs/MIGRATION_TRACKER.md Open
-    # Blockers). windSpeed/waveHeight are already live via Open-Meteo, with
-    # a per-alert fallback to demo-mode data if that call fails.
-    return await asyncio.gather(*(_enrich_alert(record) for record in MOCK_ALERTS))
+    # IMD is still blocked (see docs/MIGRATION_TRACKER.md Open Blockers), so
+    # cyclone alerts come from GDACS (real, keyless) when it reports an
+    # active cyclone affecting India; otherwise the mock cyclone entry is
+    # kept as the demo-mode fallback. windSpeed/waveHeight are live via
+    # Open-Meteo, with the same per-alert fallback pattern.
+    records = list(MOCK_ALERTS)
+    try:
+        live_cyclones = await fetch_active_cyclones()
+    except Exception:
+        live_cyclones = []
+    if live_cyclones:
+        records = [r for r in records if r["type"] != "cyclone"] + live_cyclones
+    return await asyncio.gather(*(_enrich_alert(record) for record in records))
 
 
 def _distance_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
