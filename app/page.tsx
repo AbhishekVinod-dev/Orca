@@ -131,7 +131,7 @@ export default function PremiumLandingPage() {
         </section>
 
         {/* 3. Features Section */}
-        <section className="w-full py-24 px-8">
+        <section className="relative z-10 w-full py-32 px-8 bg-[#01050e]">
            <div className="max-w-7xl mx-auto">
               <h4 className="text-cyan-400 font-semibold tracking-[0.3em] text-[10px] mb-12 text-center uppercase drop-shadow-md">FEATURES</h4>
               
@@ -232,7 +232,7 @@ export default function PremiumLandingPage() {
         </section>
 
         {/* 5. How It Works Section */}
-        <section className="w-full py-24 px-8 overflow-hidden">
+        <section className="relative z-10 w-full py-32 px-8 bg-[#01050e] overflow-hidden">
           <div className="max-w-6xl mx-auto">
              <h4 className="text-cyan-400 font-semibold tracking-[0.3em] text-[10px] mb-16 text-center uppercase drop-shadow-md">HOW IT WORKS</h4>
              
