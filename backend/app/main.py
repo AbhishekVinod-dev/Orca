@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.mock_alerts import MOCK_ALERTS
-from app.schemas import Alert
+from app.pipeline import run_chat_pipeline
+from app.schemas import Alert, ChatRequest, ChatResponse
 
 app = FastAPI(title="ORCA Backend")
 
@@ -28,3 +29,8 @@ def get_alerts() -> list[Alert]:
     # TODO: swap for a real IMD-backed client once API access is granted
     # (see docs/MIGRATION_TRACKER.md Open Blockers). Demo-mode data until then.
     return [Alert.model_validate(record) for record in MOCK_ALERTS]
+
+
+@app.post("/api/chat")
+def post_chat(payload: ChatRequest) -> ChatResponse:
+    return run_chat_pipeline(payload.query, payload.language)

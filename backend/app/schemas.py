@@ -57,3 +57,10 @@ class ChatResponse(BaseModel):
     response: str
     agent_trace: list[AgentStep]
     related_data: Optional[RelatedData] = None
+
+
+class ChatRequest(BaseModel):
+    query: str
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+    language: str = "en"
