@@ -35,11 +35,10 @@ export function IntelligenceChat() {
     }
   ]);
 
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const submitQuery = (text: string) => {
+    if (!text.trim() || isTyping) return;
 
-    const query = input.trim();
+    const query = text.trim();
     const isRouteQuery = query.toLowerCase().includes('route') || query.toLowerCase().includes('path');
 
     // Add user message
@@ -103,6 +102,11 @@ export function IntelligenceChat() {
       }
       setIsTyping(false);
     }, 5500);
+  };
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    submitQuery(input);
   };
 
   const updateMsgStatus = (id: string, status: Message['status']) => {
@@ -308,7 +312,27 @@ export function IntelligenceChat() {
         </div>
 
         {/* Input Area */}
-        <div className="p-6 border-t border-space-800 bg-space-950/80 backdrop-blur-md">
+        <div className="p-4 border-t border-space-800 bg-space-950/80 backdrop-blur-md">
+          {/* Predefined Questions */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar mb-3 pb-1">
+            {[
+              "PFZ near me",
+              "Is it safe tomorrow?",
+              "Cyclone alerts in Bay of Bengal",
+              "Safe route to Vizag",
+              "Show global SST anomalies"
+            ].map((q, i) => (
+              <button
+                key={i}
+                onClick={() => submitQuery(q)}
+                disabled={isTyping}
+                className="whitespace-nowrap px-3 py-1.5 bg-space-900 border border-space-700 hover:border-cyan-600 hover:bg-space-800 text-slate-300 text-[11px] rounded-full transition-colors disabled:opacity-50"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+
           <form onSubmit={handleSend} className="relative flex items-center">
             <input
               type="text"
