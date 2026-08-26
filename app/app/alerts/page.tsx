@@ -8,6 +8,9 @@ const mockAlerts = [
   { id: 'al-01', title: 'Cyclone Formation Detected', severity: 'critical', time: '10 MINS AGO', desc: 'Low pressure system intensifying in Bay of Bengal. Projected path intersects shipping lanes.', lat: 15.0, lon: 88.0 },
   { id: 'al-02', title: 'High Wave Action', severity: 'warning', time: '2 HOURS AGO', desc: 'Waves exceeding 4.5m detected off the coast of Kerala. Small craft advisory in effect.', lat: 9.5, lon: 75.5 },
   { id: 'al-03', title: 'AIS Anomaly', severity: 'info', time: '5 HOURS AGO', desc: 'Vessel "Ocean Star" deviated from registered corridor.', lat: 5.0, lon: 95.0 },
+  { id: 'al-04', title: 'Unregistered Trawler', severity: 'warning', time: '12 HOURS AGO', desc: 'Dark vessel detected crossing into Marine Protected Area near Lakshadweep.', lat: 10.5, lon: 72.5 },
+  { id: 'al-05', title: 'Oil Slick Detected', severity: 'critical', time: '1 DAY AGO', desc: 'SAR satellite identified possible crude oil spill spanning 12km in Mumbai High region.', lat: 19.3, lon: 71.3 },
+  { id: 'al-06', title: 'Marine Heatwave', severity: 'warning', time: '2 DAYS AGO', desc: 'SST anomalies exceeding +2.5°C persisting. High risk of coral bleaching in the Gulf of Mannar.', lat: 8.8, lon: 79.2 },
 ];
 
 export default function AlertsPage() {
