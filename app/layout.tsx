@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({ 
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
-  title: "ORCA — Marine Intelligence Platform | SIH 2026",
-  description: "Agentic AI-powered marine intelligence for fishermen, coastal authorities, and disaster management. Potential Fishing Zones, real-time alerts, sea safety, and route optimization powered by ISRO satellite data.",
-  keywords: "ORCA, marine intelligence, fishing zones, PFZ, INCOIS, sea safety, cyclone alerts, ISRO, Smart India Hackathon",
-  openGraph: {
-    title: "ORCA — Marine Intelligence Platform",
-    description: "AI-powered marine intelligence for India's coast",
-    type: "website",
-  },
+  title: "ORCA | Marine Intelligence",
+  description: "An agentic AI platform combining satellite observations, ocean intelligence, weather data and geospatial analysis.",
 };
 
 export default function RootLayout({
@@ -18,14 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      </head>
-      <body className="antialiased">
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} dark`}>
+      <body className="bg-space-950 text-white antialiased font-sans w-full h-full overflow-x-hidden">
         {children}
       </body>
     </html>
