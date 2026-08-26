@@ -79,3 +79,58 @@ All fishing vessels currently at sea in Bay of Bengal must return to port **IMME
 def test_chat_response_round_trips_mock_record():
     chat_response = ChatResponse.model_validate(R_003)
     assert chat_response.model_dump(by_alias=True, mode="json", exclude_unset=True) == R_003
+
+
+R_001 = {
+    "id": "R-001",
+    "queryPatterns": ["pfz", "fishing zone", "where to fish", "fishing today", "catch"],
+    "response": """🎯 **Potential Fishing Zones — August 25, 2026**
+
+Based on latest **MODIS Aqua** and **Sentinel-3 OLCI** satellite data processed 4 hours ago, I've identified **3 high-confidence PFZ zones** near your location:
+
+---
+
+**🟢 Zone 1: Rameswaram Offshore (91% confidence)**
+- Distance: ~68 nm from Rameswaram harbor
+- Target species: Seer Fish, Pomfret, Red Snapper
+- SST: 27.5–29°C | Chlorophyll: 1.2–3.4 mg/m³
+- Best window: **0500–1000 IST** (before sea state worsens)
+
+**🟡 Zone 2: Chennai Offshore (87% confidence)**
+- Distance: ~45 nm from Chennai coast
+- Target species: Indian Mackerel, Tuna
+- SST: 28.2–29.8°C | Chlorophyll: 0.8–2.1 mg/m³
+- Note: Monitor ALT-001 cyclone track before departing
+
+**🟡 Zone 3: Vizhinjam Offshore (72% confidence)**
+- Distance: ~90 nm from Vizhinjam port
+- Target species: Sardine, Anchovy, Mackerel
+- Check high-wave advisory (ALT-002) before venturing
+
+⚠️ **Active Alert**: Cyclone warning in Bay of Bengal — Tamil Nadu fishermen should prioritize Zone 3 (Arabian Sea side) today.
+
+Want me to calculate a safe route to any of these zones?""",
+    "agentTrace": [
+        {"agent": "Planner", "status": "done", "action": "Intent classification", "detail": "Detected: PFZ_QUERY with location context", "duration_ms": 120, "sources": []},
+        {"agent": "DataAgent", "status": "done", "action": "Fetching satellite data", "detail": "Retrieved MODIS + Sentinel-3 L2 products (2026-08-25T02:00Z)", "duration_ms": 890, "sources": ["INCOIS ERDDAP", "NASA OceanColor"]},
+        {"agent": "DataAgent", "status": "done", "action": "Computing PFZ algorithm", "detail": "Applied SST gradient + chlorophyll bloom detection (Cayula-Cornillon method)", "duration_ms": 340, "sources": ["IMD NWP Model"]},
+        {"agent": "RiskAgent", "status": "done", "action": "Cross-referencing alerts", "detail": "Checked ALT-001 (cyclone) and ALT-002 (waves) against zone locations", "duration_ms": 210, "sources": ["IMD Real-time Feed"]},
+        {"agent": "ResponseAgent", "status": "done", "action": "Generating response", "detail": "Ranked zones by confidence + safety, formatted for fishermen", "duration_ms": 180, "sources": []},
+    ],
+    "relatedData": {
+        "pfzZones": ["PFZ-001", "PFZ-002", "PFZ-003"],
+        "alerts": ["ALT-001", "ALT-002"],
+        "chartData": [
+            {"label": "Rameswaram", "value": 91},
+            {"label": "Chennai", "value": 87},
+            {"label": "Vizhinjam", "value": 72},
+            {"label": "Veraval", "value": 68},
+            {"label": "Paradip", "value": 54},
+        ],
+    },
+}
+
+
+def test_chat_response_round_trips_pfz_mock_record_with_chart_data():
+    chat_response = ChatResponse.model_validate(R_001)
+    assert chat_response.model_dump(by_alias=True, mode="json", exclude_unset=True) == R_001
