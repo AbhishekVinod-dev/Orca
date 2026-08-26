@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, BarChart2, Cpu, Globe, Users, Droplet, Thermometer, MapPin, Bell, Fish, ChevronRight, Share2, Layers, Target, Activity, ShieldCheck, Play, Box } from 'lucide-react';
+import { ArrowRight, BarChart2, Cpu, Globe, Users, Droplet, Thermometer, MapPin, Bell, Fish, ChevronRight, Share2, Layers, Target, Activity, ShieldCheck, Play, Box, Network, Bot, Navigation } from 'lucide-react';
 import { useState } from 'react';
 
 export default function PremiumLandingPage() {
