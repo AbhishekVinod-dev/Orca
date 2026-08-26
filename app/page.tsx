@@ -75,10 +75,18 @@ export default function PremiumLandingPage() {
 
       {/* ================= 2. ABOUT ORCA (Turtle) ================= */}
       <section className="w-full py-32 px-8 md:px-24 bg-[#010916] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+        {/* Background Layer */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <img src="/turtle.png" alt="Sea Turtle" className="w-full h-full object-cover object-right opacity-80" />
+          {/* Gradients to blend the image seamlessly into the section background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#010916] via-[#010916]/90 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#010613] via-transparent to-[#010613]"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center relative z-10">
           
           {/* Left Text */}
-          <div className="lg:w-5/12 relative z-10">
+          <div className="lg:w-5/12">
             <h4 className="text-cyan-500 font-semibold tracking-[0.2em] text-[10px] mb-4 uppercase">ABOUT ORCA</h4>
             <h2 className="text-3xl md:text-5xl font-light text-white leading-tight mb-6">
               Data. Technology.<br/>
@@ -92,9 +100,8 @@ export default function PremiumLandingPage() {
             </button>
           </div>
 
-          {/* Right Turtle Image */}
-          <div className="lg:w-7/12 relative min-h-[500px] md:min-h-[700px] flex items-center justify-center">
-            <img src="/turtle.png" alt="Sea Turtle" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] max-w-none h-auto mix-blend-screen opacity-90" />
+          {/* Right Turtle Space for Cards */}
+          <div className="lg:w-7/12 relative min-h-[500px] md:min-h-[700px] w-full">
             
             {/* Floating Glass Cards */}
             <div className="absolute top-10 right-20 bg-[#010613]/70 backdrop-blur-md border border-cyan-800/60 py-2 px-4 rounded-lg flex items-center gap-3">
@@ -167,11 +174,18 @@ export default function PremiumLandingPage() {
 
       {/* ================= 4. OUR IMPACT (Whale) ================= */}
       <section className="w-full py-32 px-8 md:px-24 bg-[#010916] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+        {/* Background Layer */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <img src="/whale.png" alt="Humpback Whale" className="w-full h-full object-cover object-left opacity-80" />
+          {/* Gradients to blend the image seamlessly into the section background */}
+          <div className="absolute inset-0 bg-gradient-to-l from-[#010916] via-[#010916]/90 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-[#010613] via-transparent to-[#010613]"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center relative z-10">
           
-          {/* Left Whale Image */}
-          <div className="lg:w-1/2 relative min-h-[500px] md:min-h-[700px] flex items-center justify-center">
-             <img src="/whale.png" alt="Humpback Whale" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] max-w-none h-auto mix-blend-screen opacity-90" />
+          {/* Left Whale Space for Balance */}
+          <div className="lg:w-1/2 relative min-h-[500px] md:min-h-[700px] w-full">
           </div>
 
           {/* Right Text & Stats Grid */}
