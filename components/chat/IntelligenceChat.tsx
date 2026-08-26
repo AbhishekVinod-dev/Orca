@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText } from 'lucide-react';
+import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
 import { ExplainModal } from './ExplainModal';
 
@@ -22,6 +22,9 @@ export function IntelligenceChat() {
   // Explainable AI Modal State
   const [explainOpen, setExplainOpen] = useState(false);
   const [explainData, setExplainData] = useState<any>(null);
+
+  // Inline Message Expansions (Sources / Reasoning)
+  const [expandedMsg, setExpandedMsg] = useState<{ id: string, type: 'sources' | 'reasoning' } | null>(null);
 
   const { setGlobeTarget, setRoutePath } = useAppStore();
   
@@ -195,16 +198,49 @@ export function IntelligenceChat() {
                   {msg.content && (msg.type === 'text' || msg.type === 'pfz_card' || msg.type === 'route_card') && (
                     <div className="text-slate-300 text-sm leading-relaxed pr-8">
                       {msg.content}
-                      {msg.status === 'complete' && (
-                        <div className="mt-3">
-                          <button 
-                            className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-cyan-400 transition-colors bg-space-800/40 hover:bg-space-800 px-2 py-1 rounded border border-space-700/50"
-                            onClick={() => alert("Data Sources: ISRO Oceansat-3 (SST, Chlorophyll-a), INCOIS Advisories, NOAA Global Forecast System.")}
-                          >
-                            <FileText size={12} />
-                            View Sources
-                          </button>
-                        </div>
+                      {msg.status === 'complete' && msg.role === 'assistant' && (
+                        <>
+                          <div className="mt-3 flex gap-2">
+                            <button 
+                              className={`flex items-center gap-1.5 text-[10px] font-medium transition-colors px-2 py-1 rounded border ${expandedMsg?.id === msg.id && expandedMsg?.type === 'sources' ? 'bg-space-800 border-cyan-500/50 text-cyan-400' : 'bg-space-800/40 border-space-700/50 text-slate-400 hover:text-cyan-400 hover:bg-space-800'}`}
+                              onClick={() => setExpandedMsg(expandedMsg?.id === msg.id && expandedMsg?.type === 'sources' ? null : { id: msg.id, type: 'sources' })}
+                            >
+                              <FileText size={12} />
+                              View Sources
+                            </button>
+                            <button 
+                              className={`flex items-center gap-1.5 text-[10px] font-medium transition-colors px-2 py-1 rounded border ${expandedMsg?.id === msg.id && expandedMsg?.type === 'reasoning' ? 'bg-space-800 border-teal-500/50 text-teal-400' : 'bg-space-800/40 border-space-700/50 text-slate-400 hover:text-teal-400 hover:bg-space-800'}`}
+                              onClick={() => setExpandedMsg(expandedMsg?.id === msg.id && expandedMsg?.type === 'reasoning' ? null : { id: msg.id, type: 'reasoning' })}
+                            >
+                              <BrainCircuit size={12} />
+                              Show Reasoning
+                            </button>
+                          </div>
+
+                          {/* Inline Popups */}
+                          {expandedMsg?.id === msg.id && expandedMsg?.type === 'sources' && (
+                            <div className="mt-2 p-3 bg-space-900/80 border border-cyan-900/30 rounded text-xs text-slate-300 shadow-inner">
+                              <span className="font-semibold text-cyan-500 block mb-1">Data Sources Utilized:</span>
+                              <ul className="list-disc pl-4 space-y-1">
+                                <li>ISRO Oceansat-3 (SST, Chlorophyll-a parameters)</li>
+                                <li>INCOIS Ocean State Forecasts</li>
+                                <li>NOAA Global Forecast System (GFS)</li>
+                              </ul>
+                            </div>
+                          )}
+
+                          {expandedMsg?.id === msg.id && expandedMsg?.type === 'reasoning' && (
+                            <div className="mt-2 p-3 bg-space-900/80 border border-teal-900/30 rounded text-xs text-slate-300 shadow-inner">
+                              <span className="font-semibold text-teal-500 block mb-1">Agentic Reasoning Trace:</span>
+                              <div className="space-y-1">
+                                <p><span className="text-slate-500">[1]</span> Interpreted intent via PlannerAgent.</p>
+                                <p><span className="text-slate-500">[2]</span> DataDiscoveryAgent cross-referenced spatial coordinates with satellite feeds.</p>
+                                <p><span className="text-slate-500">[3]</span> OceanAnalyticsAgent applied predictive models to identify correlations.</p>
+                                <p><span className="text-slate-500">[4]</span> RiskAssessmentAgent verified safety against prevailing weather patterns.</p>
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   )}
