@@ -71,16 +71,48 @@ export function IntelligenceChat() {
     }]);
 
     try {
-      const response = await apiService.streamChat(query, (step) => {
-        const next = STAGE_AFTER_AGENT[step.agent];
-        if (next && next !== 'complete') updateMsgStatus(agentMsgId, next);
-      });
-      setMessages(prev => prev.map(m => m.id === agentMsgId ? {
-        ...m,
-        status: 'complete',
-        type: 'text',
-        content: response
-      } : m));
+      if (query.toLowerCase() === "pfz near me") {
+        updateMsgStatus(agentMsgId, 'retrieving');
+        const pfzZones = await apiService.getPFZ();
+        if (pfzZones.length > 0) {
+          const topZone = pfzZones[0];
+          const mappedData = {
+            id: topZone.id,
+            name: topZone.name,
+            suitability: topZone.suitability,
+            safety: topZone.safetyScore,
+            sst: topZone.sst,
+            chlorophyll: topZone.chlorophyll,
+            lat: topZone.latitude,
+            lon: topZone.longitude
+          };
+          setMessages(prev => prev.map(m => m.id === agentMsgId ? {
+            ...m,
+            status: 'complete',
+            type: 'pfz_card',
+            content: "I have located several Potential Fishing Zones (PFZ) near your location.",
+            data: mappedData
+          } : m));
+        } else {
+          setMessages(prev => prev.map(m => m.id === agentMsgId ? {
+            ...m,
+            status: 'complete',
+            type: 'text',
+            content: "No Potential Fishing Zones found near your location at this time."
+          } : m));
+        }
+      } else {
+        const response = await apiService.streamChat(query, (step) => {
+          const next = STAGE_AFTER_AGENT[step.agent];
+          if (next && next !== 'complete') updateMsgStatus(agentMsgId, next);
+        });
+        setMessages(prev => prev.map(m => m.id === agentMsgId ? {
+          ...m,
+          status: 'complete',
+          type: 'text',
+          content: response
+        } : m));
+      }
     } catch {
       setMessages(prev => prev.map(m => m.id === agentMsgId ? {
         ...m,
@@ -269,7 +301,7 @@ export function IntelligenceChat() {
                            onClick={() => setGlobeTarget({
                              lat: msg.data.lat, 
                              lon: msg.data.lon,
-                             title: msg.data.id,
+                             title: msg.data.name || msg.data.id,
                              severity: 'info',
                              desc: `Suitability: ${msg.data.suitability}% | Safety: ${msg.data.safety}% | SST: ${msg.data.sst}°C`
                            })}

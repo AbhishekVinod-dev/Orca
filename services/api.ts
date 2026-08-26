@@ -90,9 +90,32 @@ async function streamRealChat(query: string, onStep: (step: BackendAgentStep) =>
 }
 
 export const apiService = {
-  getPFZ: async (): Promise<PFZZone[]> => {
-    await delay(600);
-    return MOCK_PFZ;
+  getPFZ: async (lat?: number, lng?: number, radius?: number): Promise<PFZZone[]> => {
+    if (!API_URL) {
+      await delay(600);
+      return MOCK_PFZ;
+    }
+    const params = new URLSearchParams();
+    if (lat !== undefined) params.append('lat', lat.toString());
+    if (lng !== undefined) params.append('lng', lng.toString());
+    if (radius !== undefined) params.append('radius', radius.toString());
+    
+    const url = params.toString() ? `${API_URL}/api/pfz?${params.toString()}` : `${API_URL}/api/pfz`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`GET /api/pfz failed: ${res.status}`);
+    }
+    const rawData = await res.json();
+    return rawData.map((d: any) => ({
+      id: d.id,
+      name: d.name,
+      latitude: d.centroid?.[0] || 0,
+      longitude: d.centroid?.[1] || 0,
+      suitability: d.confidence_pct || 0,
+      chlorophyll: d.chlorophyll_range ? Math.round((d.chlorophyll_range[0] + d.chlorophyll_range[1]) / 2 * 10) / 10 : 0,
+      sst: d.sst_range ? Math.round((d.sst_range[0] + d.sst_range[1]) / 2 * 10) / 10 : 0,
+      safetyScore: 90 // Default safety score as it's not present in backend data
+    }));
   },
 
   getAlerts: async (): Promise<MarineAlert[]> => {

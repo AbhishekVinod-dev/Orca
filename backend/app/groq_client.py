@@ -2,6 +2,7 @@ import json
 import os
 
 from groq import Groq
+from dotenv import load_dotenv
 
 PLANNER_MODEL = "openai/gpt-oss-120b"
 RESPONSE_MODEL = "openai/gpt-oss-20b"
@@ -9,6 +10,7 @@ RESPONSE_MODEL = "openai/gpt-oss-20b"
 VALID_INTENTS = {"PFZ", "SAFETY", "CYCLONE", "OCEANOGRAPHY", "GENERAL"}
 
 _client: Groq | None = None
+load_dotenv()
 
 
 def _get_client() -> Groq:
