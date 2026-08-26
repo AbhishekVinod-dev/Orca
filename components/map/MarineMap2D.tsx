@@ -23,7 +23,25 @@ const mockIMBLPolygon = [
   [10.5, 79.5]
 ] as [number, number][];
 
-// Mock Sensor Arrays
+// Generate 150 mock sensors around India's coast
+const generatedSensors = Array.from({ length: 150 }).map((_, i) => {
+  // Random lat between 5.0 and 20.0
+  const lat = 5.0 + Math.random() * 15.0;
+  // Random lon between 68.0 and 90.0 (Arabian Sea to Bay of Bengal)
+  const lon = 68.0 + Math.random() * 22.0;
+  const types = ['Buoy', 'Glider', 'Station', 'Tsunami Buoy', 'Float'];
+  const statuses = ['Active', 'Active', 'Active', 'Warning', 'Offline'];
+  
+  return {
+    id: `S-${Math.floor(Math.random() * 900) + 100}`,
+    lat,
+    lon,
+    type: types[Math.floor(Math.random() * types.length)],
+    status: statuses[Math.floor(Math.random() * statuses.length)],
+    temp: (26 + Math.random() * 4).toFixed(1) + '°C'
+  };
+});
+
 const mockSensors = [
   { id: 'S-01', lat: 10.5, lon: 76.5, type: 'Buoy', status: 'Active', temp: '28.4°C' },
   { id: 'S-02', lat: 10.2, lon: 76.8, type: 'Glider', status: 'Warning', temp: '29.1°C' },
@@ -31,6 +49,7 @@ const mockSensors = [
   { id: 'S-04', lat: 9.8, lon: 76.2, type: 'Buoy', status: 'Offline', temp: 'N/A' },
   { id: 'S-05', lat: 14.1, lon: 81.2, type: 'Tsunami Buoy', status: 'Active', temp: '29.5°C' },
   { id: 'S-06', lat: 8.5, lon: 78.2, type: 'Glider', status: 'Active', temp: '27.1°C' },
+  ...generatedSensors // Add the 150 dynamically generated sensors
 ];
 
 const mockCyclone = { center: [13.5, 83.5] as [number, number], radius: 150000 };
@@ -154,7 +173,7 @@ export function MarineMap2D() {
           radius={mockCyclone.radius} 
           pathOptions={{ color: '#f43f5e', fillColor: '#f43f5e', fillOpacity: 0.15, weight: 1, dashArray: '4 4' }} 
         >
-          <Tooltip permanent direction="center" opacity={1} className="custom-leaflet-tooltip !bg-transparent !border-none !text-rose-400 !shadow-none !font-bold !text-lg">
+          <Tooltip permanent direction="top" offset={[0, -20]} opacity={1} className="custom-leaflet-tooltip !bg-space-950/90 !backdrop-blur-md !border !border-rose-500/50 !text-rose-400 !px-3 !py-1.5 !rounded-md !shadow-xl !font-bold tracking-wide">
              SEVERE CYCLONIC STORM
           </Tooltip>
         </Circle>
@@ -175,7 +194,7 @@ export function MarineMap2D() {
           positions={mockMiningZone} 
           pathOptions={{ color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.1, weight: 2 }} 
         >
-           <Tooltip permanent direction="center" opacity={1} className="custom-leaflet-tooltip !bg-transparent !border-none !text-amber-500 !shadow-none !font-bold">
+           <Tooltip permanent direction="top" opacity={1} className="custom-leaflet-tooltip !bg-space-950/90 !backdrop-blur-md !border !border-amber-500/50 !text-amber-500 !px-3 !py-1.5 !rounded-md !shadow-xl !font-bold tracking-wide">
              AUTHORIZED MINING ZONE
            </Tooltip>
         </Polygon>
