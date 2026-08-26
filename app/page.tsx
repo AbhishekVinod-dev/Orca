@@ -127,6 +127,9 @@ export default function PremiumLandingPage() {
               </div>
             </div>
           </section>
+
+          {/* Spacer to expose more of the turtle background before the solid features block */}
+          <div className="w-full h-48 md:h-80"></div>
         </div>
       </div>
 
@@ -246,6 +249,9 @@ export default function PremiumLandingPage() {
               </div>
             </div>
           </section>
+
+          {/* Spacer to expose more of the whale/seabed background before How It Works */}
+          <div className="w-full h-32 md:h-64"></div>
 
           {/* 5. How It Works Section (Transparent to show seabed) */}
           <section className="w-full py-24 px-8 overflow-hidden">
