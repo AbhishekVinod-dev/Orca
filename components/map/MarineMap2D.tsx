@@ -23,6 +23,14 @@ const mockIMBLPolygon = [
   [10.5, 79.5]
 ] as [number, number][];
 
+// Mock Sensor Arrays
+const mockSensors = [
+  { id: 'S-01', lat: 10.5, lon: 76.5, type: 'Buoy', status: 'Active', temp: '28.4°C' },
+  { id: 'S-02', lat: 10.2, lon: 76.8, type: 'Glider', status: 'Warning', temp: '29.1°C' },
+  { id: 'S-03', lat: 11.0, lon: 77.0, type: 'Station', status: 'Active', temp: '27.8°C' },
+  { id: 'S-04', lat: 9.8, lon: 76.2, type: 'Buoy', status: 'Offline', temp: 'N/A' },
+];
+
 export function MarineMap2D() {
   const { globeTarget, routePath, showGeofence } = useAppStore();
   const [mounted, setMounted] = useState(false);
@@ -45,10 +53,10 @@ export function MarineMap2D() {
         style={{ height: '100%', width: '100%', backgroundColor: '#050A10' }}
         zoomControl={false}
       >
-        {/* Dark Matter CartoDB theme to match aesthetic */}
+        {/* Esri World Imagery (Satellite) - Free, No API Key Required */}
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         />
 
         {/* Dynamic Target Marker */}
@@ -75,7 +83,7 @@ export function MarineMap2D() {
               }} 
             >
               {globeTarget.title && (
-                <Tooltip direction="top" offset={[0, -10]} opacity={1} className="custom-leaflet-tooltip !bg-space-950 !border !border-space-800 !text-white !p-4 !rounded-md !shadow-2xl">
+                <Tooltip permanent direction="top" offset={[0, -10]} opacity={1} className="custom-leaflet-tooltip !bg-space-950 !border !border-space-800 !text-white !p-4 !rounded-md !shadow-2xl">
                    <div className="flex flex-col gap-1 w-56">
                      <span className="font-medium text-sm border-b border-space-800 pb-2 mb-1">{globeTarget.title}</span>
                      {globeTarget.desc && <span className="text-xs text-slate-400 whitespace-normal">{globeTarget.desc}</span>}
@@ -85,6 +93,29 @@ export function MarineMap2D() {
             </Circle>
           </>
         )}
+
+        {/* Mock Sensor Markers */}
+        {mockSensors.map((sensor, idx) => (
+          <Circle 
+            key={idx}
+            center={[sensor.lat, sensor.lon]}
+            radius={8000}
+            pathOptions={{
+              color: sensor.status === 'Warning' ? '#f59e0b' : sensor.status === 'Offline' ? '#64748b' : '#06B6D4',
+              fillColor: sensor.status === 'Warning' ? '#f59e0b' : sensor.status === 'Offline' ? '#64748b' : '#06B6D4',
+              fillOpacity: 0.6,
+              weight: 2
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -10]} className="custom-leaflet-tooltip !bg-space-950 !border !border-space-800 !text-white !p-3 !rounded-md">
+              <div className="flex flex-col gap-1 w-40">
+                <span className="font-bold text-cyan-400">{sensor.id}</span>
+                <span className="text-xs text-slate-300">Type: {sensor.type}</span>
+                <span className="text-xs text-slate-300">Temp: {sensor.temp}</span>
+              </div>
+            </Tooltip>
+          </Circle>
+        ))}
 
         {/* Route Optimization Path */}
         {routePath && (
