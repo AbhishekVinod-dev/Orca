@@ -24,19 +24,14 @@ export default function PremiumLandingPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#010613]/90 via-[#010613]/30 to-transparent"></div> {/* Dark gradient on left for text readability */}
 
         <div className="relative z-10 flex flex-col max-w-xl">
-          {/* Logo */}
+          {/* Logo Text Only */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, ease: "easeOut" }}
-            className="flex items-center gap-6 mb-16"
+            className="mb-16"
           >
-            <img 
-              src="/logo.png" 
-              alt="ORCA Logo" 
-              className="w-16 h-16 md:w-20 md:h-20 object-contain"
-            />
-            <h1 className="text-3xl md:text-4xl font-medium tracking-[0.5em] text-white ml-2">O R C A</h1>
+            <h1 className="text-3xl md:text-4xl font-medium tracking-[0.5em] text-white">O R C A</h1>
           </motion.div>
 
           {/* Catchphrase */}
