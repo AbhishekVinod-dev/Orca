@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon } from 'lucide-react';
+import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
 import { ExplainModal } from './ExplainModal';
 
@@ -191,6 +191,17 @@ export function IntelligenceChat() {
                   {msg.content && (msg.type === 'text' || msg.type === 'pfz_card' || msg.type === 'route_card') && (
                     <div className="text-slate-300 text-sm leading-relaxed pr-8">
                       {msg.content}
+                      {msg.status === 'complete' && (
+                        <div className="mt-3">
+                          <button 
+                            className="flex items-center gap-1.5 text-[10px] font-medium text-slate-400 hover:text-cyan-400 transition-colors bg-space-800/40 hover:bg-space-800 px-2 py-1 rounded border border-space-700/50"
+                            onClick={() => alert("Data Sources: ISRO Oceansat-3 (SST, Chlorophyll-a), INCOIS Advisories, NOAA Global Forecast System.")}
+                          >
+                            <FileText size={12} />
+                            View Sources
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
 
