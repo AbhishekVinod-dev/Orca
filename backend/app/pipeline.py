@@ -70,7 +70,10 @@ def stream_chat_pipeline(query: str, language: str = "en"):
     advisory = generate_advisory(query, intent, risk_score, language)
     response_text = advisory
     if alerts:
-        warnings_block = "\n\n".join(f"**{a['title']}**\n{a['description']}" for a in alerts)
+        warnings_block = "\n\n".join(
+            f"**{a['title']}** ({a['id']}, source: {a['source']})\n{a['description']}"
+            for a in alerts
+        )
         response_text = f"{advisory}\n\n---\n\n**Official Warnings:**\n\n{warnings_block}"
     step = AgentStep(
         agent="ResponseAgent",

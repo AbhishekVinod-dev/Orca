@@ -4,6 +4,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.mock_alerts import MOCK_ALERTS
 from app.pipeline import data_agent, risk_agent
 
 client = TestClient(app)
@@ -62,9 +63,32 @@ def test_post_chat_streams_steps_then_final_with_verbatim_warning(mock_intent, m
         "All fishing vessels advised to return to port immediately. Coastal communities in Tamil "
         "Nadu and Andhra Pradesh should prepare for evacuation."
     ) in final["response"]
+    # B7: source ID and issuing authority must also render verbatim, not just description text
+    assert "ALT-001" in final["response"]
+    assert "IMD New Delhi" in final["response"]
     assert final["relatedData"]["alerts"] == [
         "ALT-001", "ALT-002", "ALT-003", "ALT-004", "ALT-005", "ALT-006", "ALT-007"
     ]
+
+
+@patch("app.pipeline.generate_advisory", return_value="Advisory text.")
+@patch("app.pipeline.classify_intent", return_value="SAFETY")
+def test_b7_every_alert_field_renders_byte_identical(mock_intent, mock_advisory):
+    """B7 audit: for every alert in the demo-mode data source, title, id,
+    source, and description must appear byte-identical in the rendered
+    response -- never summarized, reworded, or dropped."""
+    response = client.post("/api/chat", json={"query": "is it safe today", "language": "en"})
+
+    assert response.status_code == 200
+    final = next(data for event, data in _parse_sse(response.text) if event == "final")
+    rendered = final["response"]
+
+    assert len(MOCK_ALERTS) == 7
+    for alert in MOCK_ALERTS:
+        assert alert["title"] in rendered, f"{alert['id']} title missing or altered"
+        assert alert["id"] in rendered, f"{alert['id']} source ID missing"
+        assert alert["source"] in rendered, f"{alert['id']} issuing authority missing"
+        assert alert["description"] in rendered, f"{alert['id']} description missing or altered"
 
 
 @patch("app.pipeline.generate_advisory", return_value="Here are some good fishing zones.")
