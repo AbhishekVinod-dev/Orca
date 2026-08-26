@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 
@@ -9,6 +10,7 @@ from fastapi.responses import StreamingResponse
 load_dotenv()
 
 from app.mock_alerts import MOCK_ALERTS
+from app.open_meteo_client import fetch_conditions
 from app.pipeline import stream_chat_pipeline
 from app.schemas import Alert, ChatRequest, ChatResponse
 
@@ -29,11 +31,26 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+async def _enrich_alert(record: dict) -> Alert:
+    enriched = dict(record)
+    try:
+        conditions = await fetch_conditions(record["coordinates"][0], record["coordinates"][1])
+        if "windSpeed" in record:
+            enriched["windSpeed"] = round(conditions["wind_speed_kmh"])
+        if "waveHeight" in record:
+            enriched["waveHeight"] = round(conditions["wave_height_m"], 1)
+    except Exception:
+        pass  # demo-mode fallback: keep the static mock values
+    return Alert.model_validate(enriched)
+
+
 @app.get("/api/alerts")
-def get_alerts() -> list[Alert]:
-    # TODO: swap for a real IMD-backed client once API access is granted
-    # (see docs/MIGRATION_TRACKER.md Open Blockers). Demo-mode data until then.
-    return [Alert.model_validate(record) for record in MOCK_ALERTS]
+async def get_alerts() -> list[Alert]:
+    # TODO: swap title/description/severity/source for a real IMD-backed
+    # client once API access is granted (see docs/MIGRATION_TRACKER.md Open
+    # Blockers). windSpeed/waveHeight are already live via Open-Meteo, with
+    # a per-alert fallback to demo-mode data if that call fails.
+    return await asyncio.gather(*(_enrich_alert(record) for record in MOCK_ALERTS))
 
 
 def _sse_event(event: str, data: dict) -> str:
