@@ -1,0 +1,18 @@
+[project]
+name = "orca-backend"
+version = "0.1.0"
+description = "ORCA marine intelligence backend"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "httpx>=0.27",
+]
+
+[tool.uv]
+package = false
