@@ -9,10 +9,11 @@ from fastapi.responses import StreamingResponse
 
 load_dotenv()
 
+from app.argo_data import ARGO_ZONES
 from app.mock_alerts import MOCK_ALERTS
 from app.open_meteo_client import fetch_conditions
 from app.pipeline import stream_chat_pipeline
-from app.schemas import Alert, ChatRequest, ChatResponse
+from app.schemas import Alert, ChatRequest, ChatResponse, PFZZone
 
 app = FastAPI(title="ORCA Backend")
 
@@ -51,6 +52,27 @@ async def get_alerts() -> list[Alert]:
     # Blockers). windSpeed/waveHeight are already live via Open-Meteo, with
     # a per-alert fallback to demo-mode data if that call fails.
     return await asyncio.gather(*(_enrich_alert(record) for record in MOCK_ALERTS))
+
+
+def _distance_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    from math import atan2, cos, radians, sin, sqrt
+
+    r = 6371
+    dlat = radians(lat2 - lat1)
+    dlng = radians(lng2 - lng1)
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2) ** 2
+    return r * 2 * atan2(sqrt(a), sqrt(1 - a))
+
+
+@app.get("/api/pfz")
+def get_pfz_zones(lat: float | None = None, lng: float | None = None, radius: float = 2000) -> list[PFZZone]:
+    # Real ARGO float SST data (Arabian Sea + Bay of Bengal). Chlorophyll is
+    # a static reference range, not observed -- see app/argo_data.py. No
+    # live chlorophyll source is wired up yet (needs MODIS/Sentinel-3).
+    zones = ARGO_ZONES
+    if lat is not None and lng is not None:
+        zones = [z for z in zones if _distance_km(lat, lng, z["centroid"][0], z["centroid"][1]) <= radius]
+    return [PFZZone.model_validate(z) for z in zones]
 
 
 def _sse_event(event: str, data: dict) -> str:

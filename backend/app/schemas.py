@@ -64,3 +64,21 @@ class ChatRequest(BaseModel):
     lat: Optional[float] = None
     lng: Optional[float] = None
     language: str = "en"
+
+
+class PFZZone(BaseModel):
+    # Fields are already snake_case in the TS interface (pfzData.ts) --
+    # no alias_generator, same reasoning as AgentStep.duration_ms.
+    id: str
+    name: str
+    confidence: Literal["high", "medium", "low"]
+    confidence_pct: int
+    species: list[str]
+    sst_range: tuple[float, float]
+    chlorophyll_range: tuple[float, float]
+    depth_range: tuple[float, float]
+    coordinates: list[list[tuple[float, float]]]  # polygon rings [lng, lat]
+    centroid: tuple[float, float]  # [lat, lng]
+    area_km2: float
+    valid_date: str
+    source_satellites: list[str]
