@@ -28,45 +28,45 @@ export default function PremiumLandingPage() {
         </div>
 
         <div className="relative z-10 flex flex-col h-full max-w-xl justify-center py-24">
-          <div className="absolute top-16 left-0 flex items-center gap-6">
+          <div className="absolute top-16 left-0 flex items-center gap-4">
             {!logoError ? (
               <img 
                 src="/logo.png" 
                 alt="ORCA Logo" 
-                className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                className="w-12 h-12 object-contain"
                 onError={() => setLogoError(true)}
               />
             ) : (
-              <div className="w-16 h-16 rounded-full border border-cyan-500/50 flex items-center justify-center">
-                <span className="text-cyan-400 font-bold">LOGO</span>
+              <div className="w-12 h-12 rounded-full border border-cyan-500/30 flex items-center justify-center">
+                <span className="text-cyan-400 font-bold text-[10px]">LOGO</span>
               </div>
             )}
-            <h1 className="text-4xl md:text-5xl font-bold tracking-[0.4em] text-white">ORCA</h1>
+            <h1 className="text-2xl font-medium tracking-[0.5em] text-white ml-2 mt-1">O R C A</h1>
           </div>
 
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-            className="flex flex-col gap-4 mt-20 mb-16"
+            className="flex flex-col gap-3 mt-16 mb-12"
           >
             {['O B S E R V E .', 'R E C O R D .', 'C O N S E R V E .', 'A C T .'].map((text, i) => (
-              <div key={i} className="text-xl md:text-2xl font-semibold tracking-[0.3em] text-cyan-50/90 drop-shadow-md">
+              <div key={i} className="text-[11px] md:text-[13px] font-medium tracking-[0.6em] text-slate-300">
                 {text}
               </div>
             ))}
-            <div className="w-64 h-[1px] bg-gradient-to-r from-cyan-900/50 via-cyan-500/50 to-transparent mt-4">
-              <div className="w-1.5 h-1.5 bg-cyan-200 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)] relative -top-[2px] left-24"></div>
+            <div className="w-48 h-[1px] bg-gradient-to-r from-cyan-900/40 via-cyan-700/40 to-transparent mt-6 relative">
+              <div className="w-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(6,182,212,1)] absolute -top-[1.5px] left-16"></div>
             </div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}>
             <Link href="/app">
-              <button className="flex items-center gap-6 group">
-                <div className="w-14 h-14 rounded-full border border-cyan-700 flex items-center justify-center group-hover:border-cyan-400 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all">
-                  <ArrowRight size={20} className="text-cyan-200 group-hover:text-white transition-colors" />
+              <button className="flex items-center gap-4 group mt-8">
+                <div className="w-10 h-10 rounded-full border border-cyan-800/50 flex items-center justify-center group-hover:border-cyan-500 group-hover:bg-cyan-900/20 transition-all">
+                  <ArrowRight size={14} className="text-cyan-400 group-hover:text-cyan-300 transition-colors" />
                 </div>
-                <span className="text-sm font-semibold tracking-[0.3em] text-cyan-100/70 group-hover:text-white transition-colors">
+                <span className="text-[11px] font-bold tracking-[0.4em] text-slate-400 group-hover:text-white transition-colors">
                   E X P L O R E &nbsp; O R C A
                 </span>
               </button>
@@ -76,20 +76,20 @@ export default function PremiumLandingPage() {
       </section>
 
       {/* 2. About ORCA Section (Turtle) */}
-      <section className="relative z-10 w-full min-h-screen py-32 px-16 md:px-32 lg:px-48 bg-[#010613] border-t border-cyan-900/20">
+      <section className="relative z-10 w-full min-h-screen py-32 px-16 md:px-32 lg:px-48 bg-[#010613]">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
           
           <div className="lg:w-1/2">
-            <h4 className="text-cyan-500 font-semibold tracking-[0.2em] text-xs mb-6 uppercase">About ORCA</h4>
-            <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-8">
+            <h4 className="text-cyan-600 font-semibold tracking-[0.3em] text-[10px] mb-4 uppercase">ABOUT ORCA</h4>
+            <h2 className="text-3xl md:text-4xl font-normal text-white leading-snug mb-6">
               Data. Technology. <br/>
-              A Better <span className="text-cyan-400">Ocean</span>.
+              A Better <span className="text-cyan-400 font-semibold">Ocean.</span>
             </h2>
-            <p className="text-cyan-100/60 text-lg leading-relaxed mb-12 max-w-lg">
+            <p className="text-slate-400 text-sm leading-relaxed mb-10 max-w-sm">
               ORCA is an intelligent ocean monitoring platform that combines real-time data, advanced analytics, and global collaboration to protect marine ecosystems and inspire action.
             </p>
-            <button className="flex items-center gap-4 px-8 py-4 border border-cyan-800 rounded-full hover:bg-cyan-900/20 hover:border-cyan-500/50 transition-all text-sm tracking-wider">
-              Learn More <ChevronRight size={16} />
+            <button className="flex items-center gap-3 px-6 py-3 border border-cyan-900/50 rounded-full hover:border-cyan-600 transition-all text-[11px] text-slate-300 tracking-wider">
+              Learn More <ChevronRight size={14} className="text-cyan-500" />
             </button>
           </div>
 
@@ -134,48 +134,48 @@ export default function PremiumLandingPage() {
       </section>
 
       {/* 3. Features Section */}
-      <section className="relative z-10 w-full py-32 px-8 bg-[#010613] border-t border-cyan-900/20">
+      <section className="relative z-10 w-full py-24 px-8 bg-[#010613]">
          <div className="max-w-7xl mx-auto">
-            <h4 className="text-cyan-500 font-semibold tracking-[0.2em] text-xs mb-16 text-center uppercase">Features</h4>
+            <h4 className="text-cyan-600 font-semibold tracking-[0.3em] text-[10px] mb-12 text-center uppercase">FEATURES</h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                
-               <div className="bg-[#051525]/40 backdrop-blur-sm border border-cyan-900/40 p-10 rounded-xl hover:border-cyan-500/50 transition-all group">
-                  <div className="mb-8 group-hover:scale-110 transition-transform">
-                    <Target size={32} className="text-cyan-500" strokeWidth={1.5} />
+               <div className="bg-[#020b16] border border-[#06182e] p-8 rounded-lg hover:border-cyan-900/50 transition-all group">
+                  <div className="mb-6 group-hover:scale-105 transition-transform">
+                    <Target size={24} className="text-cyan-500" strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-4">Smart Monitoring</h3>
-                  <p className="text-cyan-100/50 text-sm leading-relaxed">
+                  <h3 className="text-[13px] font-semibold text-slate-200 mb-3">Smart Monitoring</h3>
+                  <p className="text-slate-500 text-[11px] leading-relaxed">
                     Real-time collection of ocean data using advanced sensors and IoT devices.
                   </p>
                </div>
 
-               <div className="bg-[#051525]/40 backdrop-blur-sm border border-cyan-900/40 p-10 rounded-xl hover:border-cyan-500/50 transition-all group">
-                  <div className="mb-8 group-hover:scale-110 transition-transform">
-                    <BarChart2 size={32} className="text-cyan-500" strokeWidth={1.5} />
+               <div className="bg-[#020b16] border border-[#06182e] p-8 rounded-lg hover:border-cyan-900/50 transition-all group">
+                  <div className="mb-6 group-hover:scale-105 transition-transform">
+                    <BarChart2 size={24} className="text-cyan-500" strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-4">AI-Powered Insights</h3>
-                  <p className="text-cyan-100/50 text-sm leading-relaxed">
+                  <h3 className="text-[13px] font-semibold text-slate-200 mb-3">AI-Powered Insights</h3>
+                  <p className="text-slate-500 text-[11px] leading-relaxed">
                     Machine learning models analyze patterns and predict environmental changes.
                   </p>
                </div>
 
-               <div className="bg-[#051525]/40 backdrop-blur-sm border border-cyan-900/40 p-10 rounded-xl hover:border-cyan-500/50 transition-all group">
-                  <div className="mb-8 group-hover:scale-110 transition-transform">
-                    <Layers size={32} className="text-cyan-500" strokeWidth={1.5} />
+               <div className="bg-[#020b16] border border-[#06182e] p-8 rounded-lg hover:border-cyan-900/50 transition-all group">
+                  <div className="mb-6 group-hover:scale-105 transition-transform">
+                    <Layers size={24} className="text-cyan-500" strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-4">Interactive Visuals</h3>
-                  <p className="text-cyan-100/50 text-sm leading-relaxed">
+                  <h3 className="text-[13px] font-semibold text-slate-200 mb-3">Interactive Visuals</h3>
+                  <p className="text-slate-500 text-[11px] leading-relaxed">
                     Explore data through immersive maps, 3D visualizations, and real-time dashboards.
                   </p>
                </div>
 
-               <div className="bg-[#051525]/40 backdrop-blur-sm border border-cyan-900/40 p-10 rounded-xl hover:border-cyan-500/50 transition-all group">
-                  <div className="mb-8 group-hover:scale-110 transition-transform">
-                    <Users size={32} className="text-cyan-500" strokeWidth={1.5} />
+               <div className="bg-[#020b16] border border-[#06182e] p-8 rounded-lg hover:border-cyan-900/50 transition-all group">
+                  <div className="mb-6 group-hover:scale-105 transition-transform">
+                    <Users size={24} className="text-cyan-500" strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-4">Global Collaboration</h3>
-                  <p className="text-cyan-100/50 text-sm leading-relaxed">
+                  <h3 className="text-[13px] font-semibold text-slate-200 mb-3">Global Collaboration</h3>
+                  <p className="text-slate-500 text-[11px] leading-relaxed">
                     A unified platform for researchers, organizations, and communities to work together.
                   </p>
                </div>
@@ -185,21 +185,21 @@ export default function PremiumLandingPage() {
       </section>
 
       {/* 4. Our Impact Section (Whale) */}
-      <section className="relative z-10 w-full min-h-screen py-32 px-16 md:px-32 lg:px-48 bg-[#010613] border-t border-cyan-900/20">
+      <section className="relative z-10 w-full min-h-screen py-24 px-16 md:px-32 lg:px-48 bg-[#010613]">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-20 items-center">
           
-          <div className="lg:w-1/2 relative h-[600px] w-full rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(6,182,212,0.1)]">
+          <div className="lg:w-1/2 relative h-[500px] w-full rounded-xl overflow-hidden">
              <div className="absolute inset-0 bg-slate-800" style={{ backgroundImage: 'url(/whale.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
           </div>
 
           <div className="lg:w-1/2">
-            <h4 className="text-cyan-500 font-semibold tracking-[0.2em] text-xs mb-6 uppercase">Our Impact</h4>
-            <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-16">
+            <h4 className="text-cyan-600 font-semibold tracking-[0.3em] text-[10px] mb-4 uppercase">OUR IMPACT</h4>
+            <h2 className="text-3xl md:text-4xl font-normal text-white leading-snug mb-16">
               Protecting Oceans. <br/>
-              Preserving <span className="text-cyan-400">Life</span>.
+              Preserving <span className="text-cyan-400 font-semibold">Life.</span>
             </h2>
             
-            <div className="grid grid-cols-2 gap-y-16 gap-x-8">
+            <div className="grid grid-cols-2 gap-y-12 gap-x-8">
               
               <div className="flex items-start gap-4">
                 <div className="mt-1"><Bell size={24} className="text-cyan-500" /></div>
@@ -240,28 +240,28 @@ export default function PremiumLandingPage() {
       </section>
 
       {/* 5. How It Works Section */}
-      <section className="relative z-10 w-full py-32 px-8 bg-[#010613] border-t border-cyan-900/20 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-           <h4 className="text-cyan-500 font-semibold tracking-[0.2em] text-xs mb-24 text-center uppercase">How It Works</h4>
+      <section className="relative z-10 w-full py-24 px-8 bg-[#010613] overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+           <h4 className="text-cyan-600 font-semibold tracking-[0.3em] text-[10px] mb-16 text-center uppercase">HOW IT WORKS</h4>
            
            <div className="relative flex flex-col md:flex-row justify-between items-center gap-8 md:gap-4">
              {/* Dashed connector line */}
-             <div className="hidden md:block absolute top-8 left-10 right-10 h-[1px] border-b border-dashed border-cyan-900"></div>
+             <div className="hidden md:block absolute top-6 left-10 right-10 h-[1px] border-b border-dashed border-[#06182e]"></div>
 
              {[
-               { num: "01", title: "Collect", desc: "Data is collected from sensors, satellites, and research partners.", icon: <Box size={24} /> },
-               { num: "02", title: "Process", desc: "Advanced systems clean and organize data for accurate analysis.", icon: <Cpu size={24} /> },
-               { num: "03", title: "Analyze", desc: "AI models detect patterns and generate actionable insights.", icon: <Network size={24} /> },
-               { num: "04", title: "Visualize", desc: "Data is transformed into interactive dashboards and maps.", icon: <Layers size={24} /> },
-               { num: "05", title: "Act", desc: "Insights drive decisions and real-world actions for ocean protection.", icon: <ShieldCheck size={24} /> }
+               { num: "01", title: "Collect", desc: "Data is collected from sensors, satellites, and research partners.", icon: <Box size={16} /> },
+               { num: "02", title: "Process", desc: "Advanced systems clean and organize data for accurate analysis.", icon: <Cpu size={16} /> },
+               { num: "03", title: "Analyze", desc: "AI models detect patterns and generate actionable insights.", icon: <Network size={16} /> },
+               { num: "04", title: "Visualize", desc: "Data is transformed into interactive dashboards and maps.", icon: <Layers size={16} /> },
+               { num: "05", title: "Act", desc: "Insights drive decisions and real-world actions for ocean protection.", icon: <ShieldCheck size={16} /> }
              ].map((step, i) => (
-               <div key={i} className="relative z-10 flex flex-col items-center text-center w-48">
-                 <div className="w-16 h-16 rounded-full bg-[#051525] border border-cyan-800 flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(6,182,212,0.15)] text-cyan-400">
+               <div key={i} className="relative z-10 flex flex-col items-center text-center w-40">
+                 <div className="w-12 h-12 rounded-full bg-[#020b16] border border-[#06182e] flex items-center justify-center mb-4 text-cyan-500">
                    {step.icon}
                  </div>
-                 <div className="text-[10px] text-cyan-500 font-bold mb-2 tracking-widest">{step.num}</div>
-                 <h3 className="text-sm font-bold text-white mb-3">{step.title}</h3>
-                 <p className="text-[11px] text-cyan-100/50 leading-relaxed px-4">{step.desc}</p>
+                 <div className="text-[9px] text-cyan-600 font-bold mb-1 tracking-widest">{step.num}</div>
+                 <h3 className="text-[13px] font-semibold text-slate-200 mb-2">{step.title}</h3>
+                 <p className="text-[10px] text-slate-500 leading-relaxed px-2">{step.desc}</p>
                </div>
              ))}
            </div>
@@ -269,19 +269,20 @@ export default function PremiumLandingPage() {
       </section>
 
       {/* 6. Join The Mission / Footer CTA */}
-      <section className="relative z-10 w-full py-40 px-8 bg-[#051525] flex flex-col items-center justify-center text-center">
-         <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'url(/footer-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+      <section className="relative z-10 w-full py-32 px-8 bg-[#010817] flex flex-col items-center justify-center text-center">
+         <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'url(/footer-bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+         <div className="absolute inset-0 bg-gradient-to-t from-[#010613] via-transparent to-transparent"></div>
          
-         <div className="relative z-10 max-w-2xl">
-           <h4 className="text-cyan-500 font-semibold tracking-[0.2em] text-xs mb-8 uppercase">Join The Mission</h4>
-           <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-10">
+         <div className="relative z-10 max-w-xl">
+           <h4 className="text-cyan-600 font-semibold tracking-[0.3em] text-[10px] mb-4 uppercase">JOIN THE MISSION</h4>
+           <h2 className="text-2xl md:text-3xl font-normal text-white leading-tight mb-8">
              Together, we can create <br/>
-             a healthier ocean for <span className="text-cyan-400">tomorrow.</span>
+             a healthier ocean for <span className="text-cyan-400 font-semibold">tomorrow.</span>
            </h2>
            
-           <div className="flex justify-center mt-12">
-             <button className="flex items-center gap-4 px-8 py-4 border border-cyan-700 bg-[#010613]/50 rounded-full hover:bg-cyan-900/40 hover:border-cyan-400 transition-all text-sm tracking-wider backdrop-blur-md">
-               Be a Part of ORCA <ArrowRight size={16} />
+           <div className="flex justify-center mt-8">
+             <button className="flex items-center gap-3 px-6 py-3 border border-cyan-800 bg-[#010613]/50 rounded-full hover:bg-cyan-900/30 hover:border-cyan-500 transition-all text-[11px] tracking-wider text-slate-300 backdrop-blur-md">
+               Be a Part of ORCA <ArrowRight size={14} className="text-cyan-500" />
              </button>
            </div>
          </div>
