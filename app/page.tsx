@@ -90,9 +90,11 @@ export default function PremiumLandingPage() {
             <p className="text-gray-400 text-sm leading-relaxed mb-10 max-w-sm">
               ORCA is an intelligent ocean monitoring platform that combines real-time data, advanced analytics, and collaboration to protect marine ecosystems and inspire action.
             </p>
-            <button className="flex items-center gap-6 px-6 py-3 border border-cyan-800 rounded-full hover:border-cyan-400 hover:bg-cyan-900/20 transition-all text-[11px] text-gray-300 tracking-wider">
-              Learn More <ArrowRight size={14} className="text-cyan-500" />
-            </button>
+            <a href="#features">
+              <button className="flex items-center gap-6 px-6 py-3 border border-cyan-800 rounded-full hover:border-cyan-400 hover:bg-cyan-900/20 transition-all text-[11px] text-gray-300 tracking-wider cursor-pointer">
+                Learn More <ArrowRight size={14} className="text-cyan-500" />
+              </button>
+            </a>
           </div>
 
           {/* Right Turtle Space for Cards */}
@@ -135,7 +137,7 @@ export default function PremiumLandingPage() {
       </section>
 
       {/* ================= 3. FEATURES ================= */}
-      <section className="w-full py-24 px-8 bg-[#010613]">
+      <section id="features" className="w-full py-24 px-8 bg-[#010613]">
         <div className="max-w-7xl mx-auto">
           <h4 className="text-cyan-500 font-semibold tracking-[0.3em] text-[10px] mb-16 text-center uppercase">FEATURES</h4>
           
@@ -282,9 +284,11 @@ export default function PremiumLandingPage() {
               a healthier ocean for <span className="text-cyan-400 font-normal">tomorrow.</span>
             </h2>
             
-            <button className="flex items-center gap-4 px-8 py-3 border border-cyan-600 rounded-full hover:bg-cyan-900/40 transition-all text-[11px] tracking-wider text-white bg-[#010613]/60 backdrop-blur-md">
-              Be a Part of ORCA <ArrowRight size={14} className="text-cyan-500" />
-            </button>
+            <Link href="/app">
+              <button className="flex items-center gap-4 px-8 py-3 border border-cyan-600 rounded-full hover:bg-cyan-900/40 transition-all text-[11px] tracking-wider text-white bg-[#010613]/60 backdrop-blur-md cursor-pointer">
+                Be a Part of ORCA <ArrowRight size={14} className="text-cyan-500" />
+              </button>
+            </Link>
           </section>
 
           {/* Minimal Footer */}
