@@ -24,3 +24,36 @@ class Alert(BaseModel):
     wind_speed: Optional[float] = None
     wave_height: Optional[float] = None
     distance: Optional[float] = None
+
+
+class AgentStep(BaseModel):
+    agent: Literal["Planner", "DataAgent", "RiskAgent", "ResponseAgent"]
+    status: Literal["pending", "running", "done"]
+    action: str
+    detail: str
+    duration_ms: int
+    sources: Optional[list[str]] = None
+
+
+class ChartDataPoint(BaseModel):
+    label: str
+    value: float
+
+
+class RelatedData(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    pfz_zones: Optional[list[str]] = None
+    alerts: Optional[list[str]] = None
+    coordinates: Optional[tuple[float, float]] = None
+    chart_data: Optional[list[ChartDataPoint]] = None
+
+
+class ChatResponse(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+    id: str
+    query_patterns: list[str]
+    response: str
+    agent_trace: list[AgentStep]
+    related_data: Optional[RelatedData] = None
