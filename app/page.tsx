@@ -35,18 +35,11 @@ export default function PremiumLandingPage() {
               transition={{ duration: 1.2, ease: "easeOut" }}
               className="flex items-center gap-4 mb-8"
             >
-              {!logoError ? (
-                <img 
-                  src="/logo.png" 
-                  alt="ORCA Logo" 
-                  className="w-12 h-12 object-contain"
-                  onError={() => setLogoError(true)}
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full border border-cyan-500/30 flex items-center justify-center">
-                  <span className="text-cyan-400 font-bold text-[10px]">LOGO</span>
-                </div>
-              )}
+              <img 
+                src="/logo.png" 
+                alt="ORCA Logo" 
+                className="w-12 h-12 object-contain"
+              />
               <h1 className="text-2xl font-medium tracking-[0.5em] text-white ml-2 mt-1">O R C A</h1>
             </motion.div>
 
@@ -288,7 +281,7 @@ export default function PremiumLandingPage() {
         <footer className="w-full py-8 px-16 bg-[#010613]/80 backdrop-blur-md border-t border-cyan-900/30 flex flex-col md:flex-row justify-between items-center text-[10px] text-cyan-100/50 tech-mono">
           <div className="flex items-center gap-4 mb-4 md:mb-0">
             <div className="flex items-center gap-2 text-white font-bold text-sm tracking-widest font-sans drop-shadow-md">
-               <div className="w-4 h-4 rounded-full border border-cyan-400 flex items-center justify-center"><span className="text-[6px] text-cyan-300">O</span></div> ORCA
+               <img src="/logo.png" alt="ORCA" className="w-5 h-5 object-contain" /> ORCA
             </div>
             <span className="ml-4">© 2026 ORCA. All rights reserved.</span>
           </div>
