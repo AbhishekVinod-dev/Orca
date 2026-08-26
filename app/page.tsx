@@ -33,14 +33,14 @@ export default function PremiumLandingPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: "easeOut" }}
-              className="flex items-center gap-4 mb-8"
+              className="flex items-center gap-6 mb-8"
             >
               <img 
                 src="/logo.png" 
                 alt="ORCA Logo" 
-                className="w-12 h-12 object-contain"
+                className="w-20 h-20 object-contain"
               />
-              <h1 className="text-2xl font-medium tracking-[0.5em] text-white ml-2 mt-1">O R C A</h1>
+              <h1 className="text-3xl font-medium tracking-[0.5em] text-white ml-2 mt-1">O R C A</h1>
             </motion.div>
 
             <motion.div
