@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageSquare, Clock, MapPin } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const mockConversations = [
   { id: 'cv-101', title: 'Kochi Port Logistics & Weather', date: '2023-11-20', location: 'Kochi, India', status: 'archived' },
@@ -9,6 +10,8 @@ const mockConversations = [
 ];
 
 export default function ConversationsPage() {
+  const router = useRouter();
+
   return (
     <div className="flex-1 h-full flex flex-col px-12 py-10 relative z-10 bg-space-950">
        <div className="flex items-center gap-4 text-cyan-500 font-medium mb-8">
@@ -20,7 +23,11 @@ export default function ConversationsPage() {
        
        <div className="flex flex-col gap-4 max-w-4xl">
          {mockConversations.map((conv) => (
-           <div key={conv.id} className="glass-panel p-6 rounded-sm flex items-center justify-between cursor-pointer hover:bg-space-900 transition-colors group">
+           <div 
+             key={conv.id} 
+             onClick={() => router.push('/app')}
+             className="glass-panel p-6 rounded-sm flex items-center justify-between cursor-pointer hover:bg-space-900 transition-colors group"
+           >
              <div className="flex flex-col gap-2">
                <h3 className="text-white font-medium text-lg group-hover:text-cyan-400 transition-colors">{conv.title}</h3>
                <div className="flex items-center gap-6 text-slate-400 text-sm">

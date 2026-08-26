@@ -3,6 +3,7 @@
 import { ShieldAlert, AlertTriangle, Info, Bell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '../../../lib/store';
+import { useState } from 'react';
 
 const mockAlerts = [
   { id: 'al-01', title: 'Cyclone Formation Detected', severity: 'critical', time: '10 MINS AGO', desc: 'Low pressure system intensifying in Bay of Bengal. Projected path intersects shipping lanes.', lat: 15.0, lon: 88.0 },
@@ -16,6 +17,7 @@ const mockAlerts = [
 export default function AlertsPage() {
   const router = useRouter();
   const { setGlobeTarget } = useAppStore();
+  const [alerts, setAlerts] = useState(mockAlerts);
 
   const handleViewOnMap = (alert: any) => {
     setGlobeTarget({
@@ -38,7 +40,7 @@ export default function AlertsPage() {
        <h1 className="text-3xl font-semibold text-white tracking-wide mb-8">Active Hazards & Warnings</h1>
        
        <div className="flex flex-col gap-4 max-w-4xl">
-         {mockAlerts.map((alert) => (
+         {alerts.map((alert) => (
            <div key={alert.id} className="glass-panel p-6 rounded-sm border-l-4 border-l-transparent" style={{ borderLeftColor: alert.severity === 'critical' ? '#f43f5e' : alert.severity === 'warning' ? '#f59e0b' : '#3b82f6' }}>
              <div className="flex items-start gap-4">
                
@@ -64,7 +66,10 @@ export default function AlertsPage() {
                    >
                      VIEW ON MAP
                    </button>
-                   <button className="px-4 py-2 border border-space-700 text-slate-300 text-xs font-medium rounded-sm hover:bg-space-800 transition-colors">
+                   <button 
+                     onClick={() => setAlerts(prev => prev.filter(a => a.id !== alert.id))}
+                     className="px-4 py-2 border border-space-700 text-slate-300 text-xs font-medium rounded-sm hover:bg-space-800 transition-colors"
+                   >
                      DISMISS
                    </button>
                  </div>
