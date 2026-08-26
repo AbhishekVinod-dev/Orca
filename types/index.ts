@@ -24,12 +24,16 @@ export type PFZZone = {
 
 export type MarineAlert = {
   id: string;
-  type: "weather" | "waves" | "lightning" | "cyclone";
+  // "weather"/"waves" cover the mock fixtures in data/mockData.ts; the rest
+  // are the real values GET /api/alerts returns (see backend/app/schemas.py
+  // AlertType).
+  type: "weather" | "waves" | "lightning" | "cyclone" | "high-wave" | "geofence" | "fog" | "wind";
   severity: "low" | "moderate" | "high" | "critical";
   title: string;
   location: string;
   timestamp: string;
   description: string;
+  coordinates?: [number, number]; // [lat, lng], present on real backend alerts
 };
 
 export type EvidenceSource = {

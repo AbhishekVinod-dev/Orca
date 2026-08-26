@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
+import { apiService, BackendAgentStep } from '../../services/api';
 import { ExplainModal } from './ExplainModal';
 
 type Message = {
@@ -38,11 +39,21 @@ export function IntelligenceChat() {
     }
   ]);
 
-  const submitQuery = (text: string) => {
+  // Maps the backend's real agent (Planner/DataAgent/RiskAgent/ResponseAgent)
+  // to the UI's stage-after-this-one-completes label. Each SSE 'step' event
+  // arrives once that agent is *done*, so it advances the display to the
+  // next stage.
+  const STAGE_AFTER_AGENT: Record<BackendAgentStep['agent'], Message['status']> = {
+    Planner: 'retrieving',
+    DataAgent: 'correlating',
+    RiskAgent: 'generating',
+    ResponseAgent: 'complete',
+  };
+
+  const submitQuery = async (text: string) => {
     if (!text.trim() || isTyping) return;
 
     const query = text.trim();
-    const isRouteQuery = query.toLowerCase().includes('route') || query.toLowerCase().includes('path');
 
     // Add user message
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: query };
@@ -50,7 +61,6 @@ export function IntelligenceChat() {
     setInput('');
     setIsTyping(true);
 
-    // Simulate agent process
     const agentMsgId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, {
       id: agentMsgId,
@@ -60,51 +70,27 @@ export function IntelligenceChat() {
       type: 'text'
     }]);
 
-    // Simulate Multi-Agent Transitions
-    setTimeout(() => updateMsgStatus(agentMsgId, 'retrieving'), 1000);
-    setTimeout(() => updateMsgStatus(agentMsgId, 'correlating'), 2500);
-    setTimeout(() => updateMsgStatus(agentMsgId, 'generating'), 4000);
-    
-    // Final response
-    setTimeout(() => {
-      if (isRouteQuery) {
-        setMessages(prev => prev.map(m => m.id === agentMsgId ? {
-          ...m,
-          status: 'complete',
-          type: 'route_card',
-          content: 'Safe route plotted. Avoiding severe cyclonic system in the Bay of Bengal.',
-          data: {
-            id: 'ROUTE-7A',
-            distance: '450 NM',
-            eta: '36 Hours',
-            hazard: 'Cyclone Warning Zone',
-            path: [
-              [13.0, 80.2], // Chennai
-              [14.5, 82.0], // Waypoint 1 (avoiding hazard)
-              [16.5, 84.0], // Waypoint 2
-              [17.6, 83.2]  // Vizag
-            ]
-          }
-        } : m));
-      } else {
-        setMessages(prev => prev.map(m => m.id === agentMsgId ? {
-          ...m,
-          status: 'complete',
-          type: 'pfz_card',
-          content: 'Analysis complete. Displaying optimal prime fishing zone data based on SST and Chlorophyll-a convergence.',
-          data: {
-            id: 'PFZ 04',
-            suitability: 87,
-            safety: 94,
-            sst: 28.4,
-            chlorophyll: 'HIGH',
-            lat: 10.421,
-            lon: 76.912
-          }
-        } : m));
-      }
+    try {
+      const response = await apiService.streamChat(query, (step) => {
+        const next = STAGE_AFTER_AGENT[step.agent];
+        if (next && next !== 'complete') updateMsgStatus(agentMsgId, next);
+      });
+      setMessages(prev => prev.map(m => m.id === agentMsgId ? {
+        ...m,
+        status: 'complete',
+        type: 'text',
+        content: response
+      } : m));
+    } catch {
+      setMessages(prev => prev.map(m => m.id === agentMsgId ? {
+        ...m,
+        status: 'complete',
+        type: 'text',
+        content: 'Unable to reach ORCA backend right now. Please try again shortly.'
+      } : m));
+    } finally {
       setIsTyping(false);
-    }, 5500);
+    }
   };
 
   const handleSend = (e: React.FormEvent) => {
