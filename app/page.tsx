@@ -143,7 +143,7 @@ export default function PremiumLandingPage() {
               <h4 className="text-cyan-400 font-semibold tracking-[0.3em] text-[10px] mb-12 text-center uppercase drop-shadow-md">FEATURES</h4>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                 <div className="bg-[#020b16]/70 backdrop-blur-xl border border-cyan-900/50 p-8 rounded-lg hover:border-cyan-500/60 transition-all group shadow-2xl">
+                 <div className="bg-[#020b16] border border-cyan-900/30 p-8 rounded-lg hover:border-cyan-500/60 transition-all group shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
                     <div className="mb-6 group-hover:scale-105 transition-transform">
                       <Target size={24} className="text-cyan-400" strokeWidth={1.5} />
                     </div>
@@ -153,7 +153,7 @@ export default function PremiumLandingPage() {
                     </p>
                  </div>
 
-                 <div className="bg-[#020b16]/70 backdrop-blur-xl border border-cyan-900/50 p-8 rounded-lg hover:border-cyan-500/60 transition-all group shadow-2xl">
+                 <div className="bg-[#020b16] border border-cyan-900/30 p-8 rounded-lg hover:border-cyan-500/60 transition-all group shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
                     <div className="mb-6 group-hover:scale-105 transition-transform">
                       <BarChart2 size={24} className="text-cyan-400" strokeWidth={1.5} />
                     </div>
@@ -163,7 +163,7 @@ export default function PremiumLandingPage() {
                     </p>
                  </div>
 
-                 <div className="bg-[#020b16]/70 backdrop-blur-xl border border-cyan-900/50 p-8 rounded-lg hover:border-cyan-500/60 transition-all group shadow-2xl">
+                 <div className="bg-[#020b16] border border-cyan-900/30 p-8 rounded-lg hover:border-cyan-500/60 transition-all group shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
                     <div className="mb-6 group-hover:scale-105 transition-transform">
                       <Layers size={24} className="text-cyan-400" strokeWidth={1.5} />
                     </div>
@@ -173,7 +173,7 @@ export default function PremiumLandingPage() {
                     </p>
                  </div>
 
-                 <div className="bg-[#020b16]/70 backdrop-blur-xl border border-cyan-900/50 p-8 rounded-lg hover:border-cyan-500/60 transition-all group shadow-2xl">
+                 <div className="bg-[#020b16] border border-cyan-900/30 p-8 rounded-lg hover:border-cyan-500/60 transition-all group shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
                     <div className="mb-6 group-hover:scale-105 transition-transform">
                       <Users size={24} className="text-cyan-400" strokeWidth={1.5} />
                     </div>
