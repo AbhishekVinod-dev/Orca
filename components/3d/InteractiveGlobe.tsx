@@ -99,6 +99,45 @@ function Earth() {
         />
       </Sphere>
 
+      {/* Demo Cyclone Alert */}
+      <group position={latLongToVector3(13.5, 83.5, 5.05)}>
+        <mesh>
+           <sphereGeometry args={[0.2, 16, 16]} />
+           <meshBasicMaterial color="#f43f5e" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
+        </mesh>
+        <Html center zIndexRange={[100, 0]} className="pointer-events-none whitespace-nowrap" position={[0, -0.4, 0]}>
+           <div className="bg-space-950/90 backdrop-blur-md border border-rose-500/50 text-rose-400 px-2 py-1 rounded shadow-xl font-bold tracking-wide text-[10px]">
+              SEVERE CYCLONIC STORM
+           </div>
+        </Html>
+      </group>
+
+      {/* Demo Algal Bloom */}
+      <group position={latLongToVector3(9.5, 75.5, 5.05)}>
+        <mesh>
+           <sphereGeometry args={[0.1, 16, 16]} />
+           <meshBasicMaterial color="#10b981" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
+        </mesh>
+        <Html center zIndexRange={[100, 0]} className="pointer-events-none whitespace-nowrap" position={[0, -0.3, 0]}>
+           <div className="bg-space-950/90 backdrop-blur-md border border-teal-500/50 text-teal-400 px-2 py-1 rounded shadow-xl font-bold tracking-wide text-[10px]">
+              HARMFUL ALGAL BLOOM
+           </div>
+        </Html>
+      </group>
+
+      {/* Demo Mining Zone */}
+      <group position={latLongToVector3(11.0, 74.5, 5.05)}>
+        <mesh>
+           <sphereGeometry args={[0.08, 16, 16]} />
+           <meshBasicMaterial color="#f59e0b" transparent opacity={0.6} blending={THREE.AdditiveBlending} />
+        </mesh>
+        <Html center zIndexRange={[100, 0]} className="pointer-events-none whitespace-nowrap" position={[0, -0.3, 0]}>
+           <div className="bg-space-950/90 backdrop-blur-md border border-amber-500/50 text-amber-500 px-2 py-1 rounded shadow-xl font-bold tracking-wide text-[10px]">
+              AUTHORIZED MINING ZONE
+           </div>
+        </Html>
+      </group>
+
       {/* Dynamic Target Marker and Tooltip */}
       {globeTarget && (
         <group position={latLongToVector3(globeTarget.lat, globeTarget.lon, 5.05)}>
