@@ -1,13 +1,15 @@
+import json
 import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 
 load_dotenv()
 
 from app.mock_alerts import MOCK_ALERTS
-from app.pipeline import run_chat_pipeline
+from app.pipeline import stream_chat_pipeline
 from app.schemas import Alert, ChatRequest, ChatResponse
 
 app = FastAPI(title="ORCA Backend")
@@ -34,6 +36,21 @@ def get_alerts() -> list[Alert]:
     return [Alert.model_validate(record) for record in MOCK_ALERTS]
 
 
+def _sse_event(event: str, data: dict) -> str:
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+def _chat_event_stream(query: str, language: str):
+    for kind, payload in stream_chat_pipeline(query, language):
+        if kind == "step":
+            yield _sse_event("step", payload.model_dump(by_alias=True, mode="json"))
+        else:
+            yield _sse_event("final", payload.model_dump(by_alias=True, mode="json"))
+
+
 @app.post("/api/chat")
-def post_chat(payload: ChatRequest) -> ChatResponse:
-    return run_chat_pipeline(payload.query, payload.language)
+def post_chat(payload: ChatRequest) -> StreamingResponse:
+    return StreamingResponse(
+        _chat_event_stream(payload.query, payload.language),
+        media_type="text/event-stream",
+    )

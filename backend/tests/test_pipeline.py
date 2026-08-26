@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -6,6 +7,16 @@ from app.main import app
 from app.pipeline import data_agent, risk_agent
 
 client = TestClient(app)
+
+
+def _parse_sse(text: str) -> list[tuple[str, dict]]:
+    events = []
+    for block in text.strip().split("\n\n"):
+        lines = block.splitlines()
+        event = next(line[len("event: "):] for line in lines if line.startswith("event: "))
+        data = next(line[len("data: "):] for line in lines if line.startswith("data: "))
+        events.append((event, json.loads(data)))
+    return events
 
 
 def test_data_agent_returns_alerts_for_hazard_intents():
@@ -30,23 +41,28 @@ def test_risk_agent_returns_max_severity_score():
 
 @patch("app.pipeline.generate_advisory", return_value="Conditions are dangerous today.")
 @patch("app.pipeline.classify_intent", return_value="CYCLONE")
-def test_post_chat_returns_chat_response_with_verbatim_warning(mock_intent, mock_advisory):
+def test_post_chat_streams_steps_then_final_with_verbatim_warning(mock_intent, mock_advisory):
     response = client.post("/api/chat", json={"query": "is the cyclone dangerous", "language": "en"})
 
     assert response.status_code == 200
-    body = response.json()
-    assert body["response"].startswith("Conditions are dangerous today.")
+    assert response.headers["content-type"].startswith("text/event-stream")
+
+    events = _parse_sse(response.text)
+    step_events = [e for e in events if e[0] == "step"]
+    final_events = [e for e in events if e[0] == "final"]
+
+    assert len(step_events) == 4
+    assert [s["agent"] for _, s in step_events] == ["Planner", "DataAgent", "RiskAgent", "ResponseAgent"]
+
+    assert len(final_events) == 1
+    final = final_events[0][1]
+    assert final["response"].startswith("Conditions are dangerous today.")
     assert (
         "Severe cyclonic storm MICHAUNG intensifying rapidly. Wind speeds exceeding 120 km/h. "
         "All fishing vessels advised to return to port immediately. Coastal communities in Tamil "
         "Nadu and Andhra Pradesh should prepare for evacuation."
-    ) in body["response"]
-    assert len(body["agentTrace"]) == 4
-    assert body["agentTrace"][0]["agent"] == "Planner"
-    assert body["agentTrace"][1]["agent"] == "DataAgent"
-    assert body["agentTrace"][2]["agent"] == "RiskAgent"
-    assert body["agentTrace"][3]["agent"] == "ResponseAgent"
-    assert body["relatedData"]["alerts"] == [
+    ) in final["response"]
+    assert final["relatedData"]["alerts"] == [
         "ALT-001", "ALT-002", "ALT-003", "ALT-004", "ALT-005", "ALT-006", "ALT-007"
     ]
 
@@ -57,6 +73,8 @@ def test_post_chat_omits_warnings_for_non_hazard_intent(mock_intent, mock_adviso
     response = client.post("/api/chat", json={"query": "where should I fish", "language": "en"})
 
     assert response.status_code == 200
-    body = response.json()
-    assert body["response"] == "Here are some good fishing zones."
-    assert body["relatedData"] is None
+    events = _parse_sse(response.text)
+    final = next(data for event, data in events if event == "final")
+
+    assert final["response"] == "Here are some good fishing zones."
+    assert final["relatedData"] is None
