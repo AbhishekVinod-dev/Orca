@@ -18,7 +18,7 @@ export default function PremiumLandingPage() {
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
   return (
-    <div ref={containerRef} className="w-full bg-space-950 flex flex-col overflow-x-hidden">
+    <div ref={containerRef} className="w-full bg-transparent flex flex-col overflow-x-hidden min-h-screen">
       
 
 
@@ -54,7 +54,7 @@ export default function PremiumLandingPage() {
                 </Link>
                 
                 <Link href="#intelligence">
-                  <button className="px-8 py-4 border border-space-700 text-white font-medium hover:bg-space-800 transition-colors flex items-center justify-center rounded-sm">
+                  <button className="px-8 py-4 border border-cyan-800/50 text-cyan-100 font-medium hover:bg-cyan-900/20 hover:border-cyan-500/50 transition-all flex items-center justify-center rounded-sm shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                     EXPLORE INTELLIGENCE
                   </button>
                 </Link>
@@ -80,7 +80,7 @@ export default function PremiumLandingPage() {
       </section>
 
       {/* Storytelling Sections */}
-      <div className="relative z-10 bg-space-950">
+      <div className="relative z-10 bg-transparent">
         
         {/* Section 1: Satellite Intelligence */}
         <section id="intelligence" className="w-full min-h-screen flex items-center py-24">
@@ -104,7 +104,7 @@ export default function PremiumLandingPage() {
                 </p>
                 
                 {/* Minimalist Graphic/Placeholder for data transformation */}
-                <div className="w-full h-64 border border-space-800 rounded-sm bg-space-900/50 flex flex-col items-center justify-center gap-4">
+                <div className="w-full h-64 border border-cyan-900/30 rounded-sm bg-[#051020]/50 flex flex-col items-center justify-center gap-4 backdrop-blur-sm">
                    <div className="flex items-center gap-8 text-slate-500 tech-mono text-sm">
                       <div className="flex flex-col items-center gap-2"><span>RAW_DATA</span><span className="w-2 h-2 bg-slate-700 rounded-full"></span></div>
                       <div className="w-24 h-[1px] bg-gradient-to-r from-slate-800 via-cyan-500 to-slate-800"></div>
@@ -150,10 +150,10 @@ export default function PremiumLandingPage() {
                       <span className="w-1.5 h-1.5 bg-teal-500 rounded-full animate-pulse"></span>
                       PLANNING → RETRIEVING → CORRELATING
                    </div>
-                   <div className="p-4 bg-space-900 border border-space-800 rounded-sm">
+                   <div className="p-4 bg-[#051020]/80 border border-cyan-900/40 rounded-sm shadow-[0_0_20px_rgba(6,182,212,0.05)]">
                       <div className="flex justify-between items-center mb-4">
                         <span className="text-white font-medium">PFZ 04 IDENTIFIED</span>
-                        <span className="text-teal-500 tech-mono text-xs">87% SUITABILITY</span>
+                        <span className="text-teal-400 tech-mono text-xs font-bold">87% SUITABILITY</span>
                       </div>
                       <div className="flex gap-4 text-xs tech-mono text-slate-400">
                         <div>SST: 28.4°C</div>
