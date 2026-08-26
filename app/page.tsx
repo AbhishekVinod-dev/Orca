@@ -275,7 +275,10 @@ export default function PremiumLandingPage() {
           backgroundRepeat: 'no-repeat',
         }}
       >
-        <div className="w-full bg-[#010613]/50 backdrop-blur-sm"> {/* Darken seabed image slightly */}
+        {/* Gradient blend with the section above to remove harsh horizontal line */}
+        <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-[#010613] to-transparent z-0 pointer-events-none"></div>
+
+        <div className="w-full bg-[#010613]/50 backdrop-blur-sm relative z-10"> {/* Darken seabed image slightly */}
           
           <section className="w-full pt-32 pb-24 px-8 flex flex-col items-center justify-center text-center relative z-10">
             <h4 className="text-cyan-500 font-semibold tracking-[0.2em] text-[10px] mb-6 uppercase">JOIN THE MISSION</h4>
