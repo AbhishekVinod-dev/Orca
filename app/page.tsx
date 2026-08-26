@@ -28,7 +28,13 @@ export default function PremiumLandingPage() {
         {/* 1. Hero Section */}
         <section className="w-full h-screen flex flex-col justify-center pl-16 md:pl-32 lg:pl-48">
           <div className="flex flex-col h-full max-w-xl justify-center py-24">
-            <div className="absolute top-16 left-0 flex items-center gap-4">
+            
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              className="flex items-center gap-4 mb-8"
+            >
               {!logoError ? (
                 <img 
                   src="/logo.png" 
@@ -42,13 +48,13 @@ export default function PremiumLandingPage() {
                 </div>
               )}
               <h1 className="text-2xl font-medium tracking-[0.5em] text-white ml-2 mt-1">O R C A</h1>
-            </div>
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-              className="flex flex-col gap-3 mt-16 mb-12"
+              className="flex flex-col gap-3 mb-12"
             >
               {['O B S E R V E .', 'R E C O R D .', 'C O N S E R V E .', 'A C T .'].map((text, i) => (
                 <div key={i} className="text-[11px] md:text-[13px] font-medium tracking-[0.6em] text-cyan-50">
