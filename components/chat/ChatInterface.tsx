@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '@/lib/store/chatStore';
-import { getMockResponse } from '@/lib/mock/chatResponses';
+import { getMockResponse, AgentStep, ChatResponse } from '@/lib/mock/chatResponses';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
 import SuggestionChips from './SuggestionChips';
@@ -10,6 +10,48 @@ import ChatInput from './ChatInput';
 import AgentPipeline from './AgentPipeline';
 import { MapPin } from 'lucide-react';
 import { useMapStore } from '@/lib/store/mapStore';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+// Consumes the backend's SSE stream (event: step / event: final), calling
+// onStep as each pipeline stage completes. Throws on any failure so the
+// caller can fall back to mock data.
+async function streamChat(query: string, language: string, onStep: (step: AgentStep) => void): Promise<ChatResponse> {
+  const res = await fetch(`${API_URL}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query, language }),
+  });
+  if (!res.ok || !res.body) {
+    throw new Error(`Chat request failed: ${res.status}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let final: ChatResponse | null = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    const blocks = buffer.split('\n\n');
+    buffer = blocks.pop() ?? '';
+    for (const block of blocks) {
+      const eventLine = block.split('\n').find(l => l.startsWith('event: '));
+      const dataLine = block.split('\n').find(l => l.startsWith('data: '));
+      if (!eventLine || !dataLine) continue;
+      const event = eventLine.slice('event: '.length);
+      const data = JSON.parse(dataLine.slice('data: '.length));
+      if (event === 'step') onStep(data as AgentStep);
+      if (event === 'final') final = data as ChatResponse;
+    }
+  }
+
+  if (!final) throw new Error('Chat stream ended without a final response');
+  return final;
+}
 
 export default function ChatInterface() {
   const {
@@ -20,8 +62,7 @@ export default function ChatInterface() {
     createConversation,
     isThinking,
     setThinking,
-    setAgentTrace,
-    advanceTraceStep,
+    pushTraceStep,
     resetTrace,
     getActiveMessages,
   } = useChatStore();
@@ -57,16 +98,14 @@ export default function ChatInterface() {
     resetTrace();
 
     try {
-      const response = await getMockResponse(query);
-
-      // Animate agent trace
-      if (response.agentTrace.length > 0) {
-        setAgentTrace(response.agentTrace);
-
-        // Advance trace steps with delays
-        for (let i = 0; i < response.agentTrace.length; i++) {
-          await new Promise(r => setTimeout(r, response.agentTrace[i].duration_ms + 100));
-          advanceTraceStep();
+      let response: ChatResponse;
+      if (API_URL) {
+        response = await streamChat(query, 'en', step => pushTraceStep(step));
+      } else {
+        response = await getMockResponse(query);
+        for (const step of response.agentTrace) {
+          await new Promise(r => setTimeout(r, step.duration_ms + 100));
+          pushTraceStep(step);
         }
       }
 

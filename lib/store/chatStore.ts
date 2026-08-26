@@ -39,6 +39,7 @@ interface ChatState {
   updateLastMessage: (conversationId: string, content: string, done?: boolean) => void;
   setThinking: (val: boolean) => void;
   setAgentTrace: (trace: AgentStep[]) => void;
+  pushTraceStep: (step: AgentStep) => void;
   advanceTraceStep: () => void;
   resetTrace: () => void;
   getActiveMessages: () => Message[];
@@ -100,6 +101,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setThinking: (val) => set({ isThinking: val }),
 
   setAgentTrace: (trace) => set({ currentAgentTrace: trace, activeTraceStep: 0 }),
+
+  pushTraceStep: (step) => {
+    set(s => {
+      const trace = [...s.currentAgentTrace, step];
+      return { currentAgentTrace: trace, activeTraceStep: trace.length - 1 };
+    });
+  },
 
   advanceTraceStep: () => {
     set(s => ({
