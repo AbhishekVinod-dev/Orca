@@ -29,7 +29,18 @@ const mockSensors = [
   { id: 'S-02', lat: 10.2, lon: 76.8, type: 'Glider', status: 'Warning', temp: '29.1°C' },
   { id: 'S-03', lat: 11.0, lon: 77.0, type: 'Station', status: 'Active', temp: '27.8°C' },
   { id: 'S-04', lat: 9.8, lon: 76.2, type: 'Buoy', status: 'Offline', temp: 'N/A' },
+  { id: 'S-05', lat: 14.1, lon: 81.2, type: 'Tsunami Buoy', status: 'Active', temp: '29.5°C' },
+  { id: 'S-06', lat: 8.5, lon: 78.2, type: 'Glider', status: 'Active', temp: '27.1°C' },
 ];
+
+const mockCyclone = { center: [13.5, 83.5] as [number, number], radius: 150000 };
+const mockAlgalBloom = { center: [9.5, 75.5] as [number, number], radius: 60000 };
+const mockMiningZone = [
+  [11.0, 74.0],
+  [11.5, 74.5],
+  [10.8, 75.0],
+  [10.2, 74.5],
+] as [number, number][];
 
 export function MarineMap2D() {
   const { globeTarget, routePath, showGeofence } = useAppStore();
@@ -136,6 +147,38 @@ export function MarineMap2D() {
              </Tooltip>
           </Polygon>
         )}
+
+        {/* Demo Cyclone Alert */}
+        <Circle 
+          center={mockCyclone.center} 
+          radius={mockCyclone.radius} 
+          pathOptions={{ color: '#f43f5e', fillColor: '#f43f5e', fillOpacity: 0.15, weight: 1, dashArray: '4 4' }} 
+        >
+          <Tooltip permanent direction="center" opacity={1} className="custom-leaflet-tooltip !bg-transparent !border-none !text-rose-400 !shadow-none !font-bold !text-lg">
+             SEVERE CYCLONIC STORM
+          </Tooltip>
+        </Circle>
+
+        {/* Demo Algal Bloom */}
+        <Circle 
+          center={mockAlgalBloom.center} 
+          radius={mockAlgalBloom.radius} 
+          pathOptions={{ color: '#10b981', fillColor: '#10b981', fillOpacity: 0.2, weight: 0 }} 
+        >
+          <Tooltip direction="top" opacity={0.9} className="custom-leaflet-tooltip !bg-space-950 !border !border-space-800 !text-teal-400 !p-2 !rounded-md">
+             Harmful Algal Bloom Detected
+          </Tooltip>
+        </Circle>
+
+        {/* Demo Deep Sea Mining Geofence */}
+        <Polygon 
+          positions={mockMiningZone} 
+          pathOptions={{ color: '#f59e0b', fillColor: '#f59e0b', fillOpacity: 0.1, weight: 2 }} 
+        >
+           <Tooltip permanent direction="center" opacity={1} className="custom-leaflet-tooltip !bg-transparent !border-none !text-amber-500 !shadow-none !font-bold">
+             AUTHORIZED MINING ZONE
+           </Tooltip>
+        </Polygon>
       </MapContainer>
     </div>
   );
