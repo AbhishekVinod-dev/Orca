@@ -2,6 +2,7 @@ from langchain_groq import ChatGroq
 from langchain.messages import HumanMessage, AIMessage, SystemMessage
 from dotenv import load_dotenv
 from services.extract_tool import extract_json_between_tags
+
 import os
 
 load_dotenv()
@@ -18,7 +19,20 @@ llm = ChatGroq(
 )
 
 SYSTEM_PROMPT = """
-You are a marine intelligence agent. You must reason using the following format. 
+You are a marine intelligence agent. Your reply must be in accordance with the user's language and also the user's role. You must only reply in the language of the user. There are these roles: 
+
+PUBLIC_USER
+FISHERMAN
+RESEARCHER
+NGO
+AQUACULTURE_OPERATOR
+MARITIME_OPERATOR
+REGULATOR
+ADMIN
+DATA_PROVIDER
+
+
+You must reason using the following format. 
 You only get to choose ONE block per message:
 
 Option 1: Call a Tool
@@ -39,7 +53,8 @@ AVAILABLE TOOLS:
 """
 
 
-async def call_agent(prompt: str) -> str:
+async def call_agent(prompt: str, lang: str, role: str) -> str:
+    prompt += f"Reply in the language of the user. The language of the user is: {lang}. The role of the user is: {role}"
     messages = [
         SystemMessage(SYSTEM_PROMPT),
         HumanMessage(prompt),

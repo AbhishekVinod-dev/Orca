@@ -8,4 +8,7 @@ agent_router = APIRouter(prefix="/agent")
 
 @agent_router.post("")
 async def agent(request: ChatRequest):
-    return StreamingResponse(call_agent(request.prompt), media_type="text/event-stream")
+    return StreamingResponse(
+        call_agent(request.prompt, request.lang, request.role),
+        media_type="text/event-stream",
+    )
