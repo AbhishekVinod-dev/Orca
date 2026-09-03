@@ -2,6 +2,9 @@ from sarvamai import SarvamAI
 import os
 from fastapi import UploadFile
 import asyncio
+from dotenv import load_dotenv
+
+load_dotenv()
 
 client = SarvamAI(
     api_subscription_key=os.getenv("SARVAM_API_KEY"),
