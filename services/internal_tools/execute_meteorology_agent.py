@@ -23,10 +23,13 @@ llm = ChatGroq(
 SYSTEM_PROMPT = METEOROLOGY_SYSTEM_PROMPT
 
 
+from services.internal_tools.open_meteo import get_marine_weather_forecast
+
 async def call_meteorology_agent(prompt: str, role: str) -> str:
-    # result = await call_agent(
-    #     llm, user_data.prompt, user_data.lang, user_data.role, SYSTEM_PROMPT
-    # )
-    async for chunk in call_agent(llm, prompt, role, SYSTEM_PROMPT):
+    available_tools = {
+        "get_marine_weather_forecast": get_marine_weather_forecast
+    }
+    
+    async for chunk in call_agent(llm, prompt, role, SYSTEM_PROMPT, available_tools=available_tools, agent_name="meteorology_agent"):
         print("From the meteorological agent")
         yield chunk

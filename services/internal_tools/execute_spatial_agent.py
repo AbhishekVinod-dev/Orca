@@ -23,10 +23,13 @@ llm = ChatGroq(
 SYSTEM_PROMPT = SPATIAL_SYSTEM_PROMPT
 
 
+from services.internal_tools.pfz_service import get_pfz_by_location
+
 async def call_spatial_agent(prompt: str, role: str) -> str:
-    # result = await call_agent(
-    #     llm, user_data.prompt, user_data.lang, user_data.role, SYSTEM_PROMPT
-    # )
-    async for chunk in call_agent(llm, prompt, role, SYSTEM_PROMPT):
+    available_tools = {
+        "get_pfz_by_location": get_pfz_by_location
+    }
+    
+    async for chunk in call_agent(llm, prompt, role, SYSTEM_PROMPT, available_tools=available_tools, agent_name="spatial_agent"):
         print("From the spatial agent")
         yield chunk

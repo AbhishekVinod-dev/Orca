@@ -45,6 +45,7 @@ Your job is to receive a prompt from the Orchestrator, check the ISRO Bhuvan sat
 # YOUR AVAILABLE TOOLS
 1. get_wind_stress(lat: float, lon: float) -> Returns the current wind speed in knots from EOS-06.
 2. check_cyclone_potential(lat: float, lon: float) -> Returns the Tropical Cyclone Heat Potential for the given area.
+3. get_marine_weather_forecast(lat: float, lon: float) -> Returns average and max wave heights for the next 24 hours using Open-Meteo marine API.
 
 # REASONING FORMAT
 You only get to choose ONE block per message:
@@ -74,7 +75,7 @@ Your job is to receive a prompt from the Orchestrator, query the PostGIS databas
 
 # YOUR AVAILABLE TOOLS
 1. check_imbl_distance(lat: float, lon: float) -> Returns the distance in kilometers to the International Maritime Boundary Line.
-2. check_pfz_intersection(lat: float, lon: float) -> Returns boolean True/False if the point is inside today's Potential Fishing Zone.
+2. get_pfz_by_location(lat: float, lon: float) -> Returns the Potential Fishing Zone (PFZ) advisory data for the coastal state nearest to the provided coordinates.
 
 # REASONING FORMAT
 You only get to choose ONE block per message:
