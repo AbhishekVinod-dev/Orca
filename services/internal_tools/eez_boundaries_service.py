@@ -5,7 +5,7 @@ import asyncio
 import json
 
 
-async def get_eez_boundaries(lat: float, long: float):
+async def get_eez_boundaries():
     conn_obj = await connect_to_db()
     cur = conn_obj.cursor()
     query = """

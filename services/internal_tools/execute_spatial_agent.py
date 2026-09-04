@@ -12,7 +12,7 @@ load_dotenv()
 # apikey = os.getenv("GROQ_API_KEY")
 
 llm = ChatGroq(
-    model="qwen/qwen3.6-27b",
+    model="openai/gpt-oss-120b",
     temperature=0,
     max_tokens=None,
     reasoning_format="parsed",
@@ -25,11 +25,17 @@ SYSTEM_PROMPT = SPATIAL_SYSTEM_PROMPT
 
 from services.internal_tools.pfz_service import get_pfz_by_location
 
+
 async def call_spatial_agent(prompt: str, role: str) -> str:
-    available_tools = {
-        "get_pfz_by_location": get_pfz_by_location
-    }
-    
-    async for chunk in call_agent(llm, prompt, role, SYSTEM_PROMPT, available_tools=available_tools, agent_name="spatial_agent"):
+    available_tools = {"get_pfz_by_location": get_pfz_by_location}
+
+    async for chunk in call_agent(
+        llm,
+        prompt,
+        role,
+        SYSTEM_PROMPT,
+        available_tools=available_tools,
+        agent_name="spatial_agent",
+    ):
         print("From the spatial agent")
         yield chunk

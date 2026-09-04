@@ -62,9 +62,6 @@ Option 2: Final Answer
 <final>
 Current wind speed is 18 knots with moderate cyclone heat potential. Sea state is rough.
 </final>
-
-Available tools:
-
 """
 
 SPATIAL_SYSTEM_PROMPT = """
@@ -92,7 +89,4 @@ Option 2: Final Answer
 <final>
 The coordinates 13.08, 80.27 are located 42km safely inside the Indian EEZ and do not intersect with today's PFZ.
 </final>
-
-Available tools:
-
 """

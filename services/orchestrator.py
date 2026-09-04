@@ -12,7 +12,7 @@ load_dotenv()
 # apikey = os.getenv("GROQ_API_KEY")
 
 llm = ChatGroq(
-    model="qwen/qwen3.6-27b",
+    model="openai/gpt-oss-120b",
     temperature=0,
     max_tokens=None,
     reasoning_format="parsed",
