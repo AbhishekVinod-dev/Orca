@@ -24,6 +24,12 @@ type AppState = {
   
   isLoggedIn: boolean;
   login: () => void;
+  
+  eezGeoJSON: any | null;
+  setEEZGeoJSON: (data: any) => void;
+  
+  pfzRawData: any | null;
+  setPfzRawData: (data: any) => void;
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -43,4 +49,10 @@ export const useAppStore = create<AppState>((set) => ({
   
   isLoggedIn: false,
   login: () => set({ isLoggedIn: true }),
+  
+  eezGeoJSON: null,
+  setEEZGeoJSON: (data) => set({ eezGeoJSON: data }),
+  
+  pfzRawData: null,
+  setPfzRawData: (data) => set({ pfzRawData: data }),
 }));

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit, Mic, MicOff, AlertTriangle } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
 import { apiService, BackendAgentStep } from '../../services/api';
 import { ExplainModal } from './ExplainModal';
@@ -11,14 +11,17 @@ type Message = {
   role: 'user' | 'assistant';
   content: string;
   status?: 'planning' | 'retrieving' | 'correlating' | 'generating' | 'complete';
-  type?: 'text' | 'pfz_card' | 'route_card';
+  type?: 'text' | 'pfz_card' | 'route_card' | 'conflict_card';
   data?: any;
+  agentSteps?: { name: string, content: string }[];
 };
 
 export function IntelligenceChat() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [language, setLanguage] = useState('ENG');
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
   
   // Explainable AI Modal State
   const [explainOpen, setExplainOpen] = useState(false);
@@ -39,16 +42,7 @@ export function IntelligenceChat() {
     }
   ]);
 
-  // Maps the backend's real agent (Planner/DataAgent/RiskAgent/ResponseAgent)
-  // to the UI's stage-after-this-one-completes label. Each SSE 'step' event
-  // arrives once that agent is *done*, so it advances the display to the
-  // next stage.
-  const STAGE_AFTER_AGENT: Record<BackendAgentStep['agent'], Message['status']> = {
-    Planner: 'retrieving',
-    DataAgent: 'correlating',
-    RiskAgent: 'generating',
-    ResponseAgent: 'complete',
-  };
+  // Removed hardcoded STAGE_AFTER_AGENT map since backend now sends raw thoughts
 
   const submitQuery = async (text: string) => {
     if (!text.trim() || isTyping) return;
@@ -71,48 +65,40 @@ export function IntelligenceChat() {
     }]);
 
     try {
-      if (query.toLowerCase() === "pfz near me") {
-        updateMsgStatus(agentMsgId, 'retrieving');
-        const pfzZones = await apiService.getPFZ();
-        if (pfzZones.length > 0) {
-          const topZone = pfzZones[0];
-          const mappedData = {
-            id: topZone.id,
-            name: topZone.name,
-            suitability: topZone.suitability,
-            safety: topZone.safetyScore,
-            sst: topZone.sst,
-            chlorophyll: topZone.chlorophyll,
-            lat: topZone.latitude,
-            lon: topZone.longitude
-          };
-          setMessages(prev => prev.map(m => m.id === agentMsgId ? {
-            ...m,
-            status: 'complete',
-            type: 'pfz_card',
-            content: "I have located several Potential Fishing Zones (PFZ) near your location.",
-            data: mappedData
-          } : m));
-        } else {
-          setMessages(prev => prev.map(m => m.id === agentMsgId ? {
-            ...m,
-            status: 'complete',
-            type: 'text',
-            content: "No Potential Fishing Zones found near your location at this time."
-          } : m));
+      const response = await apiService.streamChat(
+        query,
+        "FISHERMAN",
+        language,
+        13.08,
+        80.27,
+        (step) => {
+           setMessages(prev => prev.map(m => {
+             if (m.id === agentMsgId) {
+               const newSteps = [...(m.agentSteps || []), { name: step.name || 'system', content: step.content }];
+               return { ...m, agentSteps: newSteps };
+             }
+             return m;
+           }));
         }
-      } else {
-        const response = await apiService.streamChat(query, (step) => {
-          const next = STAGE_AFTER_AGENT[step.agent];
-          if (next && next !== 'complete') updateMsgStatus(agentMsgId, next);
-        });
-        setMessages(prev => prev.map(m => m.id === agentMsgId ? {
-          ...m,
-          status: 'complete',
-          type: 'text',
-          content: response
-        } : m));
+      );
+
+      let finalResponseData = { type: 'text', content: response, data: null };
+      try {
+        const parsed = JSON.parse(response);
+        if (parsed.type && parsed.content) {
+          finalResponseData = parsed;
+        }
+      } catch (e) {
+        // Keep as plain text if it's not valid JSON
       }
+
+      setMessages(prev => prev.map(m => m.id === agentMsgId ? {
+        ...m,
+        status: 'complete',
+        type: (finalResponseData.type as Message['type']) || 'text',
+        content: finalResponseData.content,
+        data: finalResponseData.data
+      } : m));
     } catch {
       setMessages(prev => prev.map(m => m.id === agentMsgId ? {
         ...m,
@@ -143,6 +129,50 @@ export function IntelligenceChat() {
     const langs = ['ENG', 'HIN', 'TAM', 'BEN'];
     const next = langs[(langs.indexOf(language) + 1) % langs.length];
     setLanguage(next);
+  };
+
+  const toggleListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice recognition is not supported in this browser.");
+      return;
+    }
+
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const langMap: Record<string, string> = {
+      'ENG': 'en-IN',
+      'HIN': 'hi-IN',
+      'TAM': 'ta-IN',
+      'BEN': 'bn-IN'
+    };
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = langMap[language] || 'en-IN';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(transcript);
+      submitQuery(transcript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => setIsListening(false);
+
+    recognition.start();
+    recognitionRef.current = recognition;
   };
 
   return (
@@ -191,23 +221,17 @@ export function IntelligenceChat() {
                         <Loader2 size={12} className="animate-spin text-teal-500" />
                         AGENTIC ORCHESTRATION IN PROGRESS
                       </div>
-                      <div className="flex flex-col gap-1.5 text-[11px] tech-mono">
-                        <div className={`flex justify-between ${msg.status === 'planning' ? 'text-teal-400 font-bold' : 'text-slate-500'}`}>
-                          <span>[PlannerAgent]</span>
-                          <span>{msg.status === 'planning' ? 'Decomposing query...' : 'Done'}</span>
-                        </div>
-                        <div className={`flex justify-between ${(msg.status === 'retrieving' || msg.status === 'planning') ? (msg.status === 'retrieving' ? 'text-teal-400 font-bold' : 'text-slate-600') : 'text-slate-500'}`}>
-                          <span>[DataDiscoveryAgent]</span>
-                          <span>{msg.status === 'retrieving' ? 'Fetching ISRO SAT Data...' : (msg.status === 'planning' ? 'Waiting' : 'Done')}</span>
-                        </div>
-                        <div className={`flex justify-between ${(msg.status === 'correlating' || msg.status === 'planning' || msg.status === 'retrieving') ? (msg.status === 'correlating' ? 'text-cyan-400 font-bold' : 'text-slate-600') : 'text-slate-500'}`}>
-                          <span>[OceanAnalyticsAgent] & [WeatherAgent]</span>
-                          <span>{msg.status === 'correlating' ? 'Fusing spatial models...' : (msg.status !== 'generating' ? 'Waiting' : 'Done')}</span>
-                        </div>
-                        <div className={`flex justify-between ${msg.status === 'generating' ? 'text-teal-400 font-bold' : 'text-slate-600'}`}>
-                          <span>[RiskAssessmentAgent]</span>
-                          <span>{msg.status === 'generating' ? 'Applying safety geofences...' : 'Waiting'}</span>
-                        </div>
+                      <div className="flex flex-col gap-1.5 text-[11px] tech-mono max-h-32 overflow-y-auto pr-2">
+                        {!msg.agentSteps || msg.agentSteps.length === 0 ? (
+                           <div className="text-slate-500">Initializing agents...</div>
+                        ) : (
+                           msg.agentSteps.map((step, i) => (
+                             <div key={i} className="flex flex-col mb-1 text-slate-400">
+                               <span className="text-teal-400 font-bold">[{step.name.toUpperCase()}]</span>
+                               <span className="truncate">{step.content}</span>
+                             </div>
+                           ))
+                        )}
                       </div>
                     </div>
                   )}
@@ -273,37 +297,37 @@ export function IntelligenceChat() {
                           {msg.data.id} IDENTIFIED
                         </div>
                         <div className="tech-mono text-xs font-bold text-teal-400">
-                          {msg.data.suitability}% MATCH
+                          {msg.data.suitability ?? '--'}% MATCH
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                          <div>
                            <div className="text-[10px] text-slate-500 tech-mono mb-1">SAFETY INDEX</div>
-                           <div className="text-white text-lg font-semibold">{msg.data.safety}%</div>
+                           <div className="text-white text-lg font-semibold">{msg.data.safety ?? '--'}%</div>
                          </div>
                          <div>
                            <div className="text-[10px] text-slate-500 tech-mono mb-1">SST</div>
-                           <div className="text-white text-lg font-semibold">{msg.data.sst}°C</div>
+                           <div className="text-white text-lg font-semibold">{msg.data.sst ?? '--'}°C</div>
                          </div>
                          <div>
                            <div className="text-[10px] text-slate-500 tech-mono mb-1">CHLOROPHYLL</div>
-                           <div className="text-white text-lg font-semibold text-teal-400">{msg.data.chlorophyll}</div>
+                           <div className="text-white text-lg font-semibold text-teal-400">{msg.data.chlorophyll ?? '--'}</div>
                          </div>
                          <div>
                            <div className="text-[10px] text-slate-500 tech-mono mb-1">COORDINATES</div>
-                           <div className="text-white text-xs mt-1">{msg.data.lat}° N, {msg.data.lon}° E</div>
+                           <div className="text-white text-xs mt-1">{msg.data.lat ?? '--'}° N, {msg.data.lon ?? '--'}° E</div>
                          </div>
                       </div>
 
                       <div className="flex gap-2 pt-2">
                          <button 
                            onClick={() => setGlobeTarget({
-                             lat: msg.data.lat, 
-                             lon: msg.data.lon,
-                             title: msg.data.name || msg.data.id,
+                             lat: Number(msg.data.lat) || 0, 
+                             lon: Number(msg.data.lon) || 0,
+                             title: msg.data.name || msg.data.id || 'Unknown',
                              severity: 'info',
-                             desc: `Suitability: ${msg.data.suitability}% | Safety: ${msg.data.safety}% | SST: ${msg.data.sst}°C`
+                             desc: `Suitability: ${msg.data.suitability ?? '--'}% | Safety: ${msg.data.safety ?? '--'}% | SST: ${msg.data.sst ?? '--'}°C`
                            })}
                            className="flex-1 py-2 bg-white text-space-950 text-xs font-semibold rounded-sm hover:bg-slate-200 transition-colors shadow-sm"
                          >
@@ -359,6 +383,39 @@ export function IntelligenceChat() {
                     </div>
                   )}
 
+                  {/* Conflict Card */}
+                  {msg.type === 'conflict_card' && msg.data && (
+                    <div className="mt-3 w-full glass-panel p-5 rounded-md flex flex-col gap-4 shadow-lg border-l-2 border-l-amber-500 bg-amber-500/5">
+                      
+                      <div className="flex justify-between items-center border-b border-space-800 pb-3">
+                        <div className="flex items-center gap-2 text-white font-medium">
+                          <AlertTriangle size={16} className="text-amber-500" />
+                          EVIDENCE CONFLICT
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div className="p-3 bg-space-950 border border-space-800 rounded">
+                           <div className="text-[10px] text-slate-500 tech-mono mb-1">{msg.data.source1.name}</div>
+                           <div className="text-emerald-400 text-sm font-semibold">{msg.data.source1.conclusion}</div>
+                         </div>
+                         <div className="p-3 bg-space-950 border border-space-800 rounded">
+                           <div className="text-[10px] text-slate-500 tech-mono mb-1">{msg.data.source2.name}</div>
+                           <div className="text-rose-400 text-sm font-semibold">{msg.data.source2.conclusion}</div>
+                         </div>
+                      </div>
+
+                      <div className="pt-2">
+                         <button 
+                           onClick={() => { setExplainData(msg.data); setExplainOpen(true); }}
+                           className="w-full py-2 border border-amber-500/50 text-amber-500 text-xs font-semibold rounded-sm hover:bg-amber-500/10 transition-colors shadow-sm"
+                         >
+                           RESOLVE / INSPECT EVIDENCE
+                         </button>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               )}
             </div>
@@ -372,7 +429,7 @@ export function IntelligenceChat() {
             {[
               "PFZ near me",
               "Is it safe tomorrow?",
-              "Cyclone alerts in Bay of Bengal",
+              "Show conflicting evidence",
               "Safe route to Vizag",
               "Show global SST anomalies"
             ].map((q, i) => (
@@ -393,15 +450,26 @@ export function IntelligenceChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask ORCA about marine conditions, routes..."
-              className="w-full bg-space-900 border border-space-700 text-white rounded-lg pl-4 pr-12 py-4 focus:outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-500 text-sm shadow-inner"
+              className="w-full bg-space-900 border border-space-700 text-white rounded-lg pl-4 pr-20 py-4 focus:outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-500 text-sm shadow-inner"
             />
-            <button 
-              type="submit"
-              disabled={!input.trim() || isTyping}
-              className="absolute right-2 p-2 text-slate-400 hover:text-cyan-500 disabled:opacity-50 transition-colors"
-            >
-              <Send size={18} />
-            </button>
+            <div className="absolute right-2 flex items-center gap-1">
+              <button 
+                type="button"
+                onClick={toggleListening}
+                className={`p-2 transition-colors ${isListening ? 'text-rose-500 animate-pulse' : 'text-slate-400 hover:text-cyan-500'}`}
+                title="Voice Input"
+              >
+                {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+              </button>
+              <button 
+                type="submit"
+                disabled={!input.trim() || isTyping}
+                className="p-2 text-slate-400 hover:text-cyan-500 disabled:opacity-50 transition-colors"
+                title="Send"
+              >
+                <Send size={18} />
+              </button>
+            </div>
           </form>
           <div className="text-center mt-3 text-[10px] text-slate-600 tech-mono flex justify-center items-center gap-2">
             <span>ORCA V2.0 / SATELLITE INTELLIGENCE</span>

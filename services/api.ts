@@ -36,30 +36,27 @@ function toMarineAlert(a: BackendAlert): MarineAlert {
   };
 }
 
-// POST /api/chat SSE event payloads (backend/app/schemas.py AgentStep /
-// ChatResponse).
 export type BackendAgentStep = {
-  agent: 'Planner' | 'DataAgent' | 'RiskAgent' | 'ResponseAgent';
-  status: 'pending' | 'running' | 'done';
-  action: string;
-  detail: string;
-  duration_ms: number;
-  sources?: string[];
+  type: 'thought' | 'status' | 'final' | 'error';
+  name: string;
+  content: string;
 };
 
-type BackendChatResponse = {
-  id: string;
-  response: string;
-};
-
-async function streamRealChat(query: string, onStep: (step: BackendAgentStep) => void): Promise<string> {
-  const res = await fetch(`${API_URL}/api/chat`, {
+async function streamRealChat(
+  query: string,
+  role: string,
+  lang: string,
+  lat: number,
+  long: number,
+  onStep: (step: BackendAgentStep) => void
+): Promise<string> {
+  const res = await fetch(`${API_URL}/api/v1/agent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, language: 'en' }),
+    body: JSON.stringify({ prompt: query, role, lang, lat, long }),
   });
   if (!res.ok || !res.body) {
-    throw new Error(`POST /api/chat failed: ${res.status}`);
+    throw new Error(`POST /agent failed: ${res.status}`);
   }
 
   const reader = res.body.getReader();
@@ -74,15 +71,18 @@ async function streamRealChat(query: string, onStep: (step: BackendAgentStep) =>
     const blocks = buffer.split('\n\n');
     buffer = blocks.pop() ?? '';
     for (const block of blocks) {
-      const eventLine = block.split('\n').find(l => l.startsWith('event:'));
       const dataLine = block.split('\n').find(l => l.startsWith('data:'));
-      if (!eventLine || !dataLine) continue;
-      const event = eventLine.slice('event:'.length).trim();
-      const data = JSON.parse(dataLine.slice('data:'.length).trim());
-      if (event === 'step') {
-        onStep(data as BackendAgentStep);
-      } else if (event === 'final') {
-        finalResponse = (data as BackendChatResponse).response;
+      if (!dataLine) continue;
+      
+      try {
+        const data = JSON.parse(dataLine.slice('data:'.length).trim()) as BackendAgentStep;
+        if (data.type === 'final' && (data.name === 'orchestrator' || !data.name)) {
+          finalResponse = data.content;
+        } else {
+          onStep(data);
+        }
+      } catch (e) {
+        console.error("Failed to parse SSE step", e, dataLine);
       }
     }
   }
@@ -116,6 +116,30 @@ export const apiService = {
       sst: d.sst_range ? Math.round((d.sst_range[0] + d.sst_range[1]) / 2 * 10) / 10 : 0,
       safetyScore: 90 // Default safety score as it's not present in backend data
     }));
+  },
+
+  getEEZBoundaries: async (): Promise<any | null> => {
+    if (!API_URL) return null;
+    try {
+      const res = await fetch(`${API_URL}/api/v1/eez_boundaries`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      console.error("Failed to fetch EEZ Boundaries", e);
+      return null;
+    }
+  },
+
+  getRawPFZ: async (zone: string): Promise<any | null> => {
+    if (!API_URL) return null;
+    try {
+      const res = await fetch(`${API_URL}/api/v1/pfz/${encodeURIComponent(zone)}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      console.error("Failed to fetch PFZ data", e);
+      return null;
+    }
   },
 
   getAlerts: async (): Promise<MarineAlert[]> => {
@@ -169,16 +193,23 @@ export const apiService = {
   // Real SSE-driven chat when NEXT_PUBLIC_API_URL is set; otherwise fires
   // onStep on the same cadence the old pure-mock simulation used, then
   // resolves with sendChatMessage's canned reply (F3 local-mock fallback).
-  streamChat: async (message: string, onStep: (step: BackendAgentStep) => void): Promise<string> => {
+  streamChat: async (
+    message: string, 
+    role: string,
+    lang: string,
+    lat: number,
+    long: number,
+    onStep: (step: BackendAgentStep) => void
+  ): Promise<string> => {
     if (!API_URL) {
-      const mockAgents: BackendAgentStep['agent'][] = ['Planner', 'DataAgent', 'RiskAgent'];
+      const mockAgents = ['orchestrator', 'spatial_agent', 'meteorology_agent'];
       const mockDelays = [1000, 1500, 1500];
       for (let i = 0; i < mockAgents.length; i++) {
         await delay(mockDelays[i]);
-        onStep({ agent: mockAgents[i], status: 'done', action: '', detail: '', duration_ms: mockDelays[i] });
+        onStep({ type: 'status', name: mockAgents[i], content: 'Processing data...' });
       }
       return apiService.sendChatMessage(message);
     }
-    return streamRealChat(message, onStep);
+    return streamRealChat(message, role, lang, lat, long, onStep);
   },
 };

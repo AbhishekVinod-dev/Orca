@@ -34,7 +34,7 @@ export function ContextPanel() {
             </div>
             <div className="text-slate-400 text-xs tech-mono">
               {globeTarget 
-                ? `LAT: ${globeTarget.lat.toFixed(3)}° / LON: ${globeTarget.lon.toFixed(3)}°`
+                ? `LAT: ${(globeTarget.lat || 0).toFixed(3)}° / LON: ${(globeTarget.lon || 0).toFixed(3)}°`
                 : 'LAT: --.—° / LON: --.—°'
               }
             </div>
