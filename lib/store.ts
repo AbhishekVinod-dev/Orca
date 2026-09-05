@@ -8,6 +8,10 @@ export type GlobeTarget = {
   desc?: string;
 };
 
+export type UserRole = 'fisherman' | 'oceanographer' | 'policymaker' | 'aquaculture' | 'shipping' | 'shipment';
+export type DisclosureLevel = 1 | 2 | 3 | 4 | 5;
+export type BandwidthMode = 'normal' | 'low';
+
 type AppState = {
   globeTarget: GlobeTarget | null;
   setGlobeTarget: (target: GlobeTarget) => void;
@@ -23,13 +27,29 @@ type AppState = {
   setShowGeofence: (show: boolean) => void;
   
   isLoggedIn: boolean;
-  login: () => void;
+  login: (role?: UserRole) => void;
+  logout: () => void;
   
   eezGeoJSON: any | null;
   setEEZGeoJSON: (data: any) => void;
   
   pfzRawData: any | null;
   setPfzRawData: (data: any) => void;
+
+  activeRole: UserRole;
+  setActiveRole: (role: UserRole) => void;
+
+  disclosureLevel: DisclosureLevel;
+  setDisclosureLevel: (level: DisclosureLevel) => void;
+
+  bandwidthMode: BandwidthMode;
+  setBandwidthMode: (mode: BandwidthMode) => void;
+
+  language: string;
+  setLanguage: (lang: string) => void;
+
+  userLocation: { lat: number; lng: number };
+  setUserLocation: (loc: { lat: number; lng: number }) => void;
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -48,11 +68,27 @@ export const useAppStore = create<AppState>((set) => ({
   setShowGeofence: (show) => set({ showGeofence: show }),
   
   isLoggedIn: false,
-  login: () => set({ isLoggedIn: true }),
+  login: (role?: UserRole) => set((state) => ({ isLoggedIn: true, activeRole: role || state.activeRole })),
+  logout: () => set({ isLoggedIn: false }),
   
   eezGeoJSON: null,
   setEEZGeoJSON: (data) => set({ eezGeoJSON: data }),
   
   pfzRawData: null,
   setPfzRawData: (data) => set({ pfzRawData: data }),
+
+  activeRole: 'fisherman',
+  setActiveRole: (role) => set({ activeRole: role }),
+
+  disclosureLevel: 2,
+  setDisclosureLevel: (level) => set({ disclosureLevel: level }),
+
+  bandwidthMode: 'normal',
+  setBandwidthMode: (mode) => set({ bandwidthMode: mode }),
+
+  language: 'en',
+  setLanguage: (lang) => set({ language: lang }),
+
+  userLocation: { lat: 13.0827, lng: 80.2707 },
+  setUserLocation: (loc) => set({ userLocation: loc }),
 }));

@@ -33,7 +33,7 @@ export function IntelligenceChat() {
   // Inline Message Expansions (Sources / Reasoning)
   const [expandedMsg, setExpandedMsg] = useState<{ id: string, type: 'sources' | 'reasoning' } | null>(null);
 
-  const { setGlobeTarget, setRoutePath } = useAppStore();
+  const { setGlobeTarget, setRoutePath, activeRole, disclosureLevel, bandwidthMode, language: storeLanguage } = useAppStore();
   const { userLocation } = useMapStore();
   
   // Trigger geolocation on component mount
@@ -48,8 +48,6 @@ export function IntelligenceChat() {
       status: 'complete'
     }
   ]);
-
-  // Removed hardcoded STAGE_AFTER_AGENT map since backend now sends raw thoughts
 
   const submitQuery = async (text: string) => {
     if (!text.trim() || isTyping) return;
@@ -78,8 +76,8 @@ export function IntelligenceChat() {
       
       const response = await apiService.streamChat(
         query,
-        "FISHERMAN",
-        language,
+        activeRole.toUpperCase(),
+        storeLanguage || language,
         lat,
         lng,
         (step) => {
@@ -90,7 +88,9 @@ export function IntelligenceChat() {
              }
              return m;
            }));
-        }
+        },
+        disclosureLevel,
+        bandwidthMode
       );
 
       let finalResponseData = { type: 'text', content: response, data: null };

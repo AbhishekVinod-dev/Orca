@@ -48,25 +48,53 @@ async function streamRealChat(
   lang: string,
   lat: number,
   long: number,
-  onStep: (step: BackendAgentStep) => void
+  onStep: (step: BackendAgentStep) => void,
+  disclosureLevel: number = 2,
+  bandwidthMode: string = 'normal'
 ): Promise<string> {
-  const requestBody = { prompt: query, role, lang, lat, long };
-  console.log('[Chat API] Sending request:', { ...requestBody, prompt: `${requestBody.prompt.substring(0, 50)}...` });
-  
-  const res = await fetch(`${API_URL}/api/v1/agent`, {
+  const requestBody = {
+    prompt: query,
+    query,
+    role,
+    lang,
+    language: lang,
+    lat,
+    long,
+    lng: long,
+    disclosure_level: disclosureLevel,
+    bandwidth_mode: bandwidthMode
+  };
+  console.log('[Chat API] Sending request to backend agent:', { ...requestBody, prompt: query.substring(0, 50) });
+
+  let endpoint = `${API_URL}/api/chat`;
+  let res = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(requestBody),
   });
+
+  if (!res.ok) {
+    // Try fallback to /api/v1/agent if /api/chat is not available
+    try {
+      const fallbackRes = await fetch(`${API_URL}/api/v1/agent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      });
+      if (fallbackRes.ok && fallbackRes.body) {
+        res = fallbackRes;
+      }
+    } catch {}
+  }
+
   if (!res.ok || !res.body) {
-    throw new Error(`POST /agent failed: ${res.status}`);
+    throw new Error(`Agent request failed with status: ${res.status}`);
   }
 
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
   let finalResponse = '';
-  let chunkCount = 0;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -76,68 +104,83 @@ async function streamRealChat(
     buffer = blocks.pop() ?? '';
     for (const block of blocks) {
       if (!block.trim()) continue;
+
+      const eventLine = block.split('\n').find(l => l.startsWith('event:'));
       const dataLine = block.split('\n').find(l => l.startsWith('data:'));
       if (!dataLine) continue;
-      
+
+      const eventType = eventLine ? eventLine.slice('event:'.length).trim() : '';
+      const jsonStr = dataLine.slice('data:'.length).trim();
       try {
-        const jsonStr = dataLine.slice('data:'.length).trim();
-        // Validate JSON string is not empty and starts with { or [
         if (!jsonStr || (!jsonStr.startsWith('{') && !jsonStr.startsWith('['))) {
           console.warn("Invalid SSE data format, skipping:", jsonStr.substring(0, 50));
           continue;
         }
-        
-        const data = JSON.parse(jsonStr) as BackendAgentStep;
-        
-        // Validate required fields
-        if (!data.type) {
-          console.warn("SSE step missing 'type' field:", data);
-          continue;
-        }
-        
-        if (data.type === 'final' && (data.name === 'orchestrator' || !data.name)) {
-          // Try to parse content as JSON if it's a string (could be stringified JSON)
-          if (typeof data.content === 'string') {
+
+        const data = JSON.parse(jsonStr);
+        const resolvedType = eventType || data.type || 'status';
+
+        if (resolvedType === 'hazard_alert') {
+          onStep({
+            type: 'status',
+            name: 'Hazard Warning',
+            content: typeof data.content === 'object' ? JSON.stringify(data.content) : data.content
+          });
+        } else if (resolvedType === 'thought' || resolvedType === 'step' || resolvedType === 'status') {
+          onStep({
+            type: 'status',
+            name: data.agent || data.name || 'Planner Agent',
+            content: data.detail ? `${data.action || ''}: ${data.detail}` : (typeof data.content === 'string' ? data.content : JSON.stringify(data.content))
+          });
+        } else if (resolvedType === 'a2a_step') {
+          onStep({
+            type: 'status',
+            name: `${data.sender || 'Agent'} ➔ ${data.target || 'Agent'}`,
+            content: `Intent: ${data.intent || 'Delegating task'}`
+          });
+        } else if (resolvedType === 'evidence') {
+          onStep({
+            type: 'status',
+            name: 'Evidence Synthesizer',
+            content: typeof data.content === 'object' ? `Observed: ${data.content?.observations?.length || 0} signals` : String(data.content)
+          });
+        } else if (resolvedType === 'persona_response' || resolvedType === 'final') {
+          const rawResp = typeof data === 'string' ? data : (data.response || data.content || JSON.stringify(data));
+          if (typeof rawResp === 'string') {
             try {
-              const contentStr = data.content.trim();
-              // Check if it looks like JSON before trying to parse
+              const contentStr = rawResp.trim();
               if (contentStr.startsWith('{') || contentStr.startsWith('[')) {
                 const parsed = JSON.parse(contentStr);
-                // If successfully parsed, convert to string for storage
                 finalResponse = typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
-                console.log('[Chat API] Parsed structured response:', { type: typeof finalResponse, length: finalResponse.length });
               } else {
-                // Plain text response
-                finalResponse = data.content;
-                console.log('[Chat API] Received plain text response, length:', finalResponse.length);
+                finalResponse = rawResp;
               }
-            } catch (parseError) {
-              // If it fails, keep as plain text
-              finalResponse = data.content;
-              console.warn('[Chat API] Failed to parse as JSON, using as plain text:', parseError instanceof Error ? parseError.message : String(parseError));
+            } catch {
+              finalResponse = rawResp;
             }
           } else {
-            finalResponse = JSON.stringify(data.content);
-            console.log('[Chat API] Stringified non-string response');
+            finalResponse = JSON.stringify(rawResp);
           }
+        } else if (data.response) {
+          finalResponse = data.response;
         } else {
-          onStep(data);
+          onStep({
+            type: 'status',
+            name: data.name || data.agent || 'System',
+            content: typeof data.content === 'string' ? data.content : (data.detail || JSON.stringify(data))
+          });
         }
       } catch (e) {
-        // Only log if it's not a truncation error from incomplete stream
-        const jsonStr = dataLine.slice('data:'.length).trim();
         if (jsonStr.length > 0) {
           console.error("Failed to parse SSE step:", {
             error: e instanceof Error ? e.message : String(e),
-            errorType: e instanceof Error ? e.name : typeof e,
-            jsonLength: jsonStr.length,
             jsonPreview: jsonStr.substring(0, 150)
           });
         }
       }
     }
   }
-  
+
   console.log('[Chat API] Response streaming complete, final response length:', finalResponse.length);
   return finalResponse;
 }
@@ -172,27 +215,13 @@ export const apiService = {
   },
 
   getEEZBoundaries: async (): Promise<any | null> => {
-    if (!API_URL) return null;
-    try {
-      const res = await fetch(`${API_URL}/api/v1/eez_boundaries`);
-      if (!res.ok) return null;
-      return await res.json();
-    } catch (e) {
-      console.error("Failed to fetch EEZ Boundaries", e);
-      return null;
-    }
+    // Backend endpoint /api/v1/eez_boundaries is not yet implemented
+    return null;
   },
 
-  getRawPFZ: async (zone: string): Promise<any | null> => {
-    if (!API_URL) return null;
-    try {
-      const res = await fetch(`${API_URL}/api/v1/pfz/${encodeURIComponent(zone)}`);
-      if (!res.ok) return null;
-      return await res.json();
-    } catch (e) {
-      console.error("Failed to fetch PFZ data", e);
-      return null;
-    }
+  getRawPFZ: async (_zone: string): Promise<any | null> => {
+    // Backend endpoint /api/v1/pfz/{zone} is not yet implemented
+    return null;
   },
 
   getAlerts: async (): Promise<MarineAlert[]> => {
@@ -252,7 +281,9 @@ export const apiService = {
     lang: string,
     lat: number,
     long: number,
-    onStep: (step: BackendAgentStep) => void
+    onStep: (step: BackendAgentStep) => void,
+    disclosureLevel?: number,
+    bandwidthMode?: string
   ): Promise<string> => {
     if (!API_URL) {
       const mockAgents = ['orchestrator', 'spatial_agent', 'meteorology_agent'];
@@ -263,6 +294,6 @@ export const apiService = {
       }
       return apiService.sendChatMessage(message);
     }
-    return streamRealChat(message, role, lang, lat, long, onStep);
+    return streamRealChat(message, role, lang, lat, long, onStep, disclosureLevel, bandwidthMode);
   },
 };

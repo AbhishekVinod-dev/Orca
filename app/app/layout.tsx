@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '../../components/layout/Sidebar';
+import { PersonaHeaderBar } from '../../components/layout/PersonaHeaderBar';
 import { useAppStore } from '../../lib/store';
 
 export default function AppLayout({
@@ -30,10 +31,13 @@ export default function AppLayout({
       {/* 1. Sidebar (Fixed left) */}
       <Sidebar />
       
-      {/* 2 & 3. Main Workspace Area (flex-1 handles the rest) */}
-      <main className="flex-1 flex w-full h-full relative">
-        {children}
-      </main>
+      {/* 2 & 3. Main Workspace Area with Top Persona Header */}
+      <div className="flex-1 flex flex-col w-full h-full overflow-hidden relative">
+        <PersonaHeaderBar />
+        <main className="flex-1 flex w-full h-full relative overflow-hidden">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
