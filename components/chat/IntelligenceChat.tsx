@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit, Mic, MicOff, AlertTriangle } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
+import { useMapStore } from '../../lib/store/mapStore';
+import { useGeolocation } from '../../lib/geo/useGeolocation';
+import { LANGUAGES, getSpeechLangCode, getLanguageName, getAllLanguageCodes, type LanguageCode } from '../../lib/languages';
 import { apiService, BackendAgentStep } from '../../services/api';
 import { ExplainModal } from './ExplainModal';
 
@@ -19,7 +22,7 @@ type Message = {
 export function IntelligenceChat() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [language, setLanguage] = useState('ENG');
+  const [language, setLanguage] = useState('en'); // Default: English
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   
@@ -31,6 +34,10 @@ export function IntelligenceChat() {
   const [expandedMsg, setExpandedMsg] = useState<{ id: string, type: 'sources' | 'reasoning' } | null>(null);
 
   const { setGlobeTarget, setRoutePath } = useAppStore();
+  const { userLocation } = useMapStore();
+  
+  // Trigger geolocation on component mount
+  useGeolocation();
   
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -65,12 +72,16 @@ export function IntelligenceChat() {
     }]);
 
     try {
+      // Use real user location from geolocation, fallback to Chennai defaults
+      const lat = userLocation?.lat ?? 13.08;
+      const lng = userLocation?.lng ?? 80.27;
+      
       const response = await apiService.streamChat(
         query,
         "FISHERMAN",
         language,
-        13.08,
-        80.27,
+        lat,
+        lng,
         (step) => {
            setMessages(prev => prev.map(m => {
              if (m.id === agentMsgId) {
@@ -126,9 +137,10 @@ export function IntelligenceChat() {
   };
 
   const cycleLanguage = () => {
-    const langs = ['ENG', 'HIN', 'TAM', 'BEN'];
-    const next = langs[(langs.indexOf(language) + 1) % langs.length];
-    setLanguage(next);
+    const langs = getAllLanguageCodes();
+    const currentIndex = langs.indexOf(language as LanguageCode);
+    const nextIndex = (currentIndex + 1) % langs.length;
+    setLanguage(langs[nextIndex]);
   };
 
   const toggleListening = () => {
@@ -144,15 +156,10 @@ export function IntelligenceChat() {
       return;
     }
 
-    const langMap: Record<string, string> = {
-      'ENG': 'en-IN',
-      'HIN': 'hi-IN',
-      'TAM': 'ta-IN',
-      'BEN': 'bn-IN'
-    };
-
     const recognition = new SpeechRecognition();
-    recognition.lang = langMap[language] || 'en-IN';
+    recognition.lang = getSpeechLangCode(language as LanguageCode);
+    recognition.continuous = false;
+    recognition.interimResults = false;
     recognition.continuous = false;
     recognition.interimResults = false;
 
@@ -181,10 +188,18 @@ export function IntelligenceChat() {
         
         {/* Header with Language Selector */}
         <div className="p-6 border-b border-space-800 flex items-center justify-between">
-          <h2 className="text-white font-medium tracking-wide flex items-center gap-2">
-            <Globe size={18} className="text-cyan-500" />
-            ORCA Intelligence
-          </h2>
+          <div className="flex flex-col gap-1">
+            <h2 className="text-white font-medium tracking-wide flex items-center gap-2">
+              <Globe size={18} className="text-cyan-500" />
+              ORCA Intelligence
+            </h2>
+            {userLocation && (
+              <div className="text-[10px] text-slate-400 flex items-center gap-1 ml-6">
+                <MapPin size={12} className="text-cyan-400" />
+                {userLocation.name}
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-4">
             <button 
               onClick={cycleLanguage}
@@ -192,7 +207,7 @@ export function IntelligenceChat() {
               title="Regional Language Support"
             >
               <Languages size={14} />
-              {language}
+              {getLanguageName(language as LanguageCode)}
             </button>
             <div className="flex items-center gap-2 text-[10px] tech-mono text-cyan-500">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
