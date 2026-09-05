@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppStore, UserRole, DisclosureLevel } from '../../lib/store';
-import { Anchor, ShieldAlert, Cpu, Waves, Ship, Package, Globe, Signal, Sliders, User, LogOut } from 'lucide-react';
+import { Anchor, ShieldAlert, Cpu, Waves, Ship, Globe, Signal, Sliders, User, LogOut } from 'lucide-react';
 
 const ROLE_METADATA: Record<UserRole, { label: string; icon: React.ReactNode; color: string }> = {
   fisherman: { label: 'Fisherman', icon: <Anchor size={14} />, color: 'text-amber-400 border-amber-500/40 bg-amber-500/10' },
@@ -11,7 +11,6 @@ const ROLE_METADATA: Record<UserRole, { label: string; icon: React.ReactNode; co
   policymaker: { label: 'Policymaker', icon: <ShieldAlert size={14} />, color: 'text-rose-400 border-rose-500/40 bg-rose-500/10' },
   aquaculture: { label: 'Aquaculture', icon: <Waves size={14} />, color: 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10' },
   shipping: { label: 'Shipping', icon: <Ship size={14} />, color: 'text-blue-400 border-blue-500/40 bg-blue-500/10' },
-  shipment: { label: 'Shipment', icon: <Package size={14} />, color: 'text-indigo-400 border-indigo-500/40 bg-indigo-500/10' },
 };
 
 const LANGUAGES = [
