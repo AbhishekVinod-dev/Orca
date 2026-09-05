@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit, Mic, MicOff, AlertTriangle, ChevronDown, Check } from 'lucide-react';
+import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit, Mic, MicOff, AlertTriangle, ChevronDown, Check, ShieldCheck } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
 import { useMapStore } from '../../lib/store/mapStore';
 import { useGeolocation } from '../../lib/geo/useGeolocation';
@@ -12,7 +12,7 @@ type Message = {
   role: 'user' | 'assistant';
   content: string;
   status?: 'planning' | 'retrieving' | 'correlating' | 'generating' | 'complete';
-  type?: 'text' | 'pfz_card' | 'route_card' | 'conflict_card';
+  type?: 'text' | 'pfz_card' | 'route_card' | 'conflict_card' | 'hazard_card' | 'advisory_card';
   data?: any;
   agentSteps?: { name: string, content: string }[];
 };
@@ -479,6 +479,86 @@ export function IntelligenceChat() {
                            RESOLVE / INSPECT EVIDENCE
                          </button>
                       </div>
+                    </div>
+                  )}
+
+                  {/* Hazard Weather Card */}
+                  {msg.type === 'hazard_card' && msg.data && (
+                    <div className="mt-3 w-full glass-panel p-5 rounded-md flex flex-col gap-4 shadow-lg border-l-4 border-l-emerald-500 bg-emerald-950/20">
+                      <div className="flex justify-between items-center border-b border-space-800 pb-3">
+                        <div className="flex items-center gap-2 text-white font-medium">
+                          <ShieldCheck size={18} className="text-emerald-400" />
+                          {msg.data.status || 'WEATHER ADVISORY'}
+                        </div>
+                        <span className="text-[10px] font-bold tech-mono text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">
+                          COASTAL SAFE
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-xs tech-mono">
+                        <div className="bg-space-950 p-2.5 rounded border border-space-800">
+                          <span className="text-slate-400 text-[10px] block">WAVE HEIGHT (Hs)</span>
+                          <span className="text-emerald-400 font-bold text-sm">{msg.data.waveHeight || '1.1 m'}</span>
+                        </div>
+                        <div className="bg-space-950 p-2.5 rounded border border-space-800">
+                          <span className="text-slate-400 text-[10px] block">WIND SPEED</span>
+                          <span className="text-white font-bold text-sm">{msg.data.windSpeed || '11 Kts'}</span>
+                        </div>
+                        <div className="bg-space-950 p-2.5 rounded border border-space-800">
+                          <span className="text-slate-400 text-[10px] block">CURRENT SPEED</span>
+                          <span className="text-cyan-400 font-bold text-sm">{msg.data.currentSpeed || '0.6 Kts'}</span>
+                        </div>
+                        <div className="bg-space-950 p-2.5 rounded border border-space-800">
+                          <span className="text-slate-400 text-[10px] block">VISIBILITY</span>
+                          <span className="text-white font-bold text-sm">{msg.data.visibility || '12.5 KM'}</span>
+                        </div>
+                      </div>
+
+                      {msg.data.advisory && (
+                        <p className="text-xs text-slate-300 bg-space-950/80 p-2.5 rounded border border-space-800 font-medium">
+                          "{msg.data.advisory}"
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Advisory Overview Card */}
+                  {msg.type === 'advisory_card' && msg.data && (
+                    <div className="mt-3 w-full glass-panel p-5 rounded-md flex flex-col gap-4 shadow-lg border-l-4 border-l-cyan-500 bg-space-950/90">
+                      <div className="flex justify-between items-center border-b border-space-800 pb-3">
+                        <div className="flex items-center gap-2 text-white font-medium text-xs">
+                          <Globe size={16} className="text-cyan-400" />
+                          {msg.data.title || 'ORCA SATELLITE INTELLIGENCE SUMMARY'}
+                        </div>
+                        <span className="text-[10px] font-bold tech-mono text-cyan-400 bg-cyan-500/20 px-2 py-0.5 rounded border border-cyan-500/40">
+                          OPERATIONAL
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs tech-mono">
+                        <div className="bg-space-900 p-2.5 rounded border border-space-800">
+                          <span className="text-slate-400 text-[10px] block">SST AVG</span>
+                          <span className="text-white font-bold text-sm">{msg.data.sstAvg || '28.4 °C'}</span>
+                        </div>
+                        <div className="bg-space-900 p-2.5 rounded border border-space-800">
+                          <span className="text-slate-400 text-[10px] block">WIND SPEED</span>
+                          <span className="text-cyan-400 font-bold text-sm">{msg.data.windSpeed || '12 Kts'}</span>
+                        </div>
+                        <div className="bg-space-900 p-2.5 rounded border border-space-800">
+                          <span className="text-slate-400 text-[10px] block">ACTIVE NODES</span>
+                          <span className="text-emerald-400 font-bold text-sm">{msg.data.activeNodes || '12 NODES'}</span>
+                        </div>
+                        <div className="bg-space-900 p-2.5 rounded border border-space-800">
+                          <span className="text-slate-400 text-[10px] block">IMBL STATUS</span>
+                          <span className="text-teal-300 font-bold text-sm">{msg.data.imblStatus || 'CLEAR'}</span>
+                        </div>
+                      </div>
+
+                      {msg.data.recommendation && (
+                        <p className="text-xs text-slate-300 bg-space-900/60 p-2.5 rounded border border-space-800">
+                          {msg.data.recommendation}
+                        </p>
+                      )}
                     </div>
                   )}
 

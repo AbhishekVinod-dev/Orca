@@ -254,22 +254,77 @@ export const apiService = {
 
   // Simulating a chat response that takes some time to 'think'
   sendChatMessage: async (message: string): Promise<string> => {
-    await delay(2500);
+    await delay(1200);
     const lowerMsg = message.toLowerCase();
 
     if (lowerMsg.includes('pfz') || lowerMsg.includes('fish')) {
-      return "I have located several Potential Fishing Zones (PFZ) near your current map center. I've highlighted them on the map. Zone Alpha has the highest suitability based on current SST and chlorophyll levels.";
+      return JSON.stringify({
+        type: 'pfz_card',
+        content: 'Identified high-suitability Potential Fishing Zone ALPHA (13.15°N, 80.35°E) near your sector based on Oceansat-3 thermal front convergence algorithms.',
+        data: {
+          id: 'PFZ-ALPHA',
+          name: 'PFZ Alpha (Chennai East)',
+          suitability: 94,
+          safety: 96,
+          sst: 28.2,
+          chlorophyll: '2.1 mg/m³',
+          lat: 13.15,
+          lon: 80.35
+        }
+      });
     }
 
-    if (lowerMsg.includes('safe') || lowerMsg.includes('cyclone') || lowerMsg.includes('weather')) {
-      return "There is a severe cyclone warning in the Bay of Bengal, and high waves predicted off the Arabian Sea Coast. I recommend staying in harbor or sticking to the designated safe coastal routes.";
+    if (lowerMsg.includes('safe') || lowerMsg.includes('cyclone') || lowerMsg.includes('weather') || lowerMsg.includes('tomorrow')) {
+      return JSON.stringify({
+        type: 'hazard_card',
+        content: 'Coastal seafaring & ocean safety advisory: Surface wind speeds 11 Kts from East-Northeast. Knee-high wave swell (1.1m). Seafaring conditions optimal within 15 NM coastal waters.',
+        data: {
+          status: 'SAFE TO SAIL (COASTAL)',
+          waveHeight: '1.1 m (Knee High)',
+          windSpeed: '11 Knots (East-Northeast)',
+          currentSpeed: '0.6 Knots (Southerly)',
+          visibility: '12.5 KM',
+          advisory: 'Deep ocean trawling beyond 30 NM discouraged due to 2.8m swell corridor.'
+        }
+      });
     }
 
-    if (lowerMsg.includes('route')) {
-      return "I've overlaid a safe coastal route on the map avoiding the restricted naval exercise geofence.";
+    if (lowerMsg.includes('route') || lowerMsg.includes('vizag') || lowerMsg.includes('corridor')) {
+      return JSON.stringify({
+        type: 'route_card',
+        content: 'Calculated fuel-optimal safe maritime corridor between Chennai Port and Visakhapatnam Port avoiding high swell zone and IMBL naval exercise area.',
+        data: {
+          distance: '380 NM',
+          eta: '22 Hours (at 17.5 Kts)',
+          hazard: 'Avoided 3.2m Swell Corridor & IMBL Sector 4 Naval Geofence',
+          path: [[13.0827, 80.2707], [14.2000, 80.8000], [16.0000, 81.5000], [17.6868, 83.2185]]
+        }
+      });
     }
 
-    return "I am analyzing the latest marine intelligence. Based on current satellite and oceanographic data, conditions are normal, but please review the map and alerts panel for specific localized advisories.";
+    if (lowerMsg.includes('conflict') || lowerMsg.includes('evidence')) {
+      return JSON.stringify({
+        type: 'conflict_card',
+        content: 'Cross-validation analysis between Oceansat-3 satellite SST pass and NIOT coastal buoy #04 indicates negligible statistical variance (< 0.3°C).',
+        data: {
+          source1: { name: 'Oceansat-3 Satellite Thermal Pass', conclusion: 'SST: 28.5°C (±0.3°C)' },
+          source2: { name: 'NIOT Coastal Ocean Buoy #04', conclusion: 'SST: 28.2°C (±0.1°C)' }
+        }
+      });
+    }
+
+    return JSON.stringify({
+      type: 'advisory_card',
+      content: 'ORCA Multi-Agent Oceanic Intelligence summary for Coromandel & Bay of Bengal coastal sector:',
+      data: {
+        title: 'GLOBAL OCEAN & SATELLITE TELEMETRY OVERVIEW',
+        sstAvg: '28.4 °C',
+        windSpeed: '12 Kts',
+        activeNodes: '12 NODES',
+        imblStatus: '0 VIOLATIONS',
+        recommendation: 'All coastal fishing & commercial shipping corridors operating with green flag 0 status.'
+      }
+    });
   },
 
   // Real SSE-driven chat when NEXT_PUBLIC_API_URL is set; otherwise fires
