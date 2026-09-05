@@ -61,9 +61,9 @@ const DownTrendIcon: React.FC<{ baseColor: string; strokeColor: string; classNam
 );
 
 const LEGEND_ITEMS = [
-  { name: 'DLP', color: '#5B14C5' },
-  { name: 'SysLog', color: '#B58BF3' },
-  { name: 'Threat Intel', color: '#DAC5F9' },
+  { name: 'SST Thermal (°C)', color: '#5B14C5' },
+  { name: 'Salinity (PSU)', color: '#B58BF3' },
+  { name: 'Chlorophyll-a', color: '#DAC5F9' },
 ];
 
 const now = new Date();
@@ -75,30 +75,30 @@ const generateDate = (offsetDays: number): Date => {
 
 const initialChartData: ChartSeries[] = [
   {
-    key: 'DLP',
+    key: 'SST Thermal',
     data: [
-      { key: generateDate(6), data: 30 }, { key: generateDate(5), data: 45 },
-      { key: generateDate(4), data: 40 }, { key: generateDate(3), data: 60 },
-      { key: generateDate(2), data: 50 }, { key: generateDate(1), data: 70 },
-      { key: generateDate(0), data: 65 },
+      { key: generateDate(6), data: 25 }, { key: generateDate(5), data: 38 },
+      { key: generateDate(4), data: 32 }, { key: generateDate(3), data: 55 },
+      { key: generateDate(2), data: 48 }, { key: generateDate(1), data: 68 },
+      { key: generateDate(0), data: 62 },
     ]
   },
   {
-    key: 'Threat Intel',
+    key: 'Chlorophyll-a',
     data: [
-      { key: generateDate(6), data: 10 }, { key: generateDate(5), data: 15 },
-      { key: generateDate(4), data: 12 }, { key: generateDate(3), data: 20 },
-      { key: generateDate(2), data: 18 }, { key: generateDate(1), data: 25 },
-      { key: generateDate(0), data: 22 },
+      { key: generateDate(6), data: 12 }, { key: generateDate(5), data: 18 },
+      { key: generateDate(4), data: 15 }, { key: generateDate(3), data: 24 },
+      { key: generateDate(2), data: 21 }, { key: generateDate(1), data: 30 },
+      { key: generateDate(0), data: 26 },
     ]
   },
   {
-    key: 'SysLog',
+    key: 'Salinity',
     data: [
-      { key: generateDate(6), data: 20 }, { key: generateDate(5), data: 25 },
-      { key: generateDate(4), data: 30 }, { key: generateDate(3), data: 22 },
-      { key: generateDate(2), data: 35 }, { key: generateDate(1), data: 40 },
-      { key: generateDate(0), data: 30 },
+      { key: generateDate(6), data: 20 }, { key: generateDate(5), data: 28 },
+      { key: generateDate(4), data: 34 }, { key: generateDate(3), data: 26 },
+      { key: generateDate(2), data: 39 }, { key: generateDate(1), data: 44 },
+      { key: generateDate(0), data: 35 },
     ]
   },
 ];
@@ -129,33 +129,33 @@ interface MetricInfo {
 
 const METRICS_DATA: MetricInfo[] = [
   {
-    id: 'mttd',
+    id: 'thermocline',
     Icon: DiamondAlertIcon,
-    label: 'Mean Time to Respond',
-    tooltip: 'Mean Time to Respond',
-    value: '6 Hours',
+    label: 'Thermocline Depth',
+    tooltip: 'Thermocline Depth Boundary',
+    value: '180 Meters',
     TrendIcon: UpTrendIcon,
-    trendBaseColor: '#E84045',
-    trendStrokeColor: '#F08083',
+    trendBaseColor: '#40E5D1',
+    trendStrokeColor: '#40E5D1',
     delay: 0,
   },
   {
-    id: 'irt',
+    id: 'sst_layer',
     Icon: CircleAlertIcon,
-    label: 'Incident Response Time',
-    tooltip: 'Incident Response Time',
-    value: '4 Hours',
+    label: 'Mixed Layer SST',
+    tooltip: 'Mixed Layer Sea Surface Temperature',
+    value: '28.5 °C',
     TrendIcon: UpTrendIcon,
     trendBaseColor: '#E84045',
     trendStrokeColor: '#F08083',
     delay: 0.05,
   },
   {
-    id: 'ier',
+    id: 'cross_variance',
     Icon: TriangleAlertIcon,
-    label: 'Incident Escalation Rate',
-    tooltip: 'Incident Escalation Rate',
-    value: '10%',
+    label: 'Cross-Sensor Variance',
+    tooltip: 'Multi-Sensor Statistical Variance',
+    value: '0.28 °C (0.1%)',
     TrendIcon: DownTrendIcon,
     trendBaseColor: '#40E5D1',
     trendStrokeColor: '#40E5D1',
@@ -165,92 +165,103 @@ const METRICS_DATA: MetricInfo[] = [
 
 export const IncidentReportCard: React.FC = () => {
   return (
-    <>
-      <div className="flex flex-col pt-4 pb-4 bg-[#040c1d] dark:bg-[#040c1d] border border-cyan-500/30 rounded-3xl shadow-[11px_21px_3px_rgba(0,0,0,0.06),14px_27px_7px_rgba(0,0,0,0.10),19px_38px_14px_rgba(0,0,0,0.13),27px_54px_27px_rgba(0,0,0,0.16),39px_78px_50px_rgba(0,0,0,0.20),55px_110px_86px_rgba(0,0,0,0.26)] w-full max-w-md min-h-[580px] overflow-hidden transition-colors duration-300">
-        <h3 className="text-2xl text-left p-6 pt-4 pb-6 font-bold text-white transition-colors duration-300">
-          Oceanographic Incident Report
-        </h3>
-        <div className="flex justify-between w-full pl-6 pr-6 mb-4">
-          {LEGEND_ITEMS.map((item) => (
-            <div key={item.name} className="flex gap-2 items-center">
-              <div className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: item.color }} />
-              <span className="text-gray-400 text-xs transition-colors duration-300">{item.name}</span>
-            </div>
-          ))}
+    <div className="flex flex-col pt-5 pb-5 bg-[#040c1d] dark:bg-[#040c1d] border border-cyan-500/30 rounded-3xl shadow-[11px_21px_3px_rgba(0,0,0,0.06),14px_27px_7px_rgba(0,0,0,0.10),19px_38px_14px_rgba(0,0,0,0.13),27px_54px_27px_rgba(0,0,0,0.16),39px_78px_50px_rgba(0,0,0,0.20),55px_110px_86px_rgba(0,0,0,0.26)] w-full overflow-hidden transition-colors duration-300">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-6 pt-2 pb-4 border-b border-slate-800/80 mb-4">
+        <div>
+          <h3 className="text-xl font-bold text-white transition-colors duration-300">
+            Oceanographic Telemetry Profile
+          </h3>
+          <p className="text-xs text-slate-400 mt-0.5 font-mono">Argo Float #2901783 • Oceansat-3 Thermal & Salinity Array</p>
         </div>
-        <div className="reaviz-chart-container h-[200px] w-full px-4">
-          <AreaChart
-            height={200}
-            id="multi-series-interpolation-smooth"
-            data={validatedChartData}
-            xAxis={
-              <LinearXAxis
-                type="time"
-                tickSeries={
-                  <LinearXAxisTickSeries
-                    label={
-                      <LinearXAxisTickLabel
-                        format={(v) => new Date(v).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}
-                        fill="#9A9AAF"
-                      />
-                    }
-                    tickSize={10} 
-                  />
-                }
-              />
-            }
-            yAxis={
-              <LinearYAxis
-                axisLine={null}
-                tickSeries={<LinearYAxisTickSeries line={null} label={null} tickSize={10} />} 
-              />
-            }
-            series={
-              <AreaSeries
-                type="grouped"
-                interpolation="smooth"
-                area={
-                  <Area
-                    gradient={
-                      <Gradient
-                        stops={[
-                          <GradientStop key={1} stopOpacity={0} />,
-                          <GradientStop key={2} offset="100%" stopOpacity={0.4} />,
-                        ]}
-                      />
-                    }
-                  />
-                }
-                colorScheme={['#5B14C5', '#DAC5F9', '#B58BF3']} 
-              />
-            }
-            gridlines={<GridlineSeries line={<Gridline strokeColor="rgba(126, 126, 143, 0.3)" />} />}
-          />
-        </div>
-        <div className="flex flex-col pl-6 pr-6 pt-6 font-mono divide-y divide-slate-800 transition-colors duration-300">
-          {METRICS_DATA.map((metric) => (
-            <motion.div
-              key={metric.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: metric.delay }}
-              className="flex w-full py-3.5 items-center gap-2"
-            >
-              <div className="flex flex-row gap-2 items-center text-xs w-1/2 text-slate-400">
-                <metric.Icon />
-                <span className="truncate" title={metric.tooltip}>
-                  {metric.label}
-                </span>
-              </div>
-              <div className="flex gap-2 w-1/2 justify-end items-center">
-                <span className="font-semibold text-lg text-white">{metric.value}</span>
-                <metric.TrendIcon baseColor={metric.trendBaseColor} strokeColor={metric.trendStrokeColor} />
-              </div>
-            </motion.div>
-          ))}
+
+        <div className="flex items-center gap-1.5 bg-[#020612] px-3 py-1.5 rounded-xl border border-slate-800/80 text-xs text-slate-300 font-mono">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>LIVE TELEMETRY</span>
         </div>
       </div>
-    </>
+
+      <div className="flex justify-between w-full px-6 mb-4 flex-wrap gap-2">
+        {LEGEND_ITEMS.map((item) => (
+          <div key={item.name} className="flex gap-2 items-center">
+            <div className="w-3.5 h-3.5 rounded-sm" style={{ backgroundColor: item.color }} />
+            <span className="text-gray-300 text-xs font-mono transition-colors duration-300">{item.name}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="reaviz-chart-container h-[220px] w-full px-4">
+        <AreaChart
+          height={220}
+          id="multi-series-interpolation-smooth"
+          data={validatedChartData}
+          xAxis={
+            <LinearXAxis
+              type="time"
+              tickSeries={
+                <LinearXAxisTickSeries
+                  label={
+                    <LinearXAxisTickLabel
+                      format={(v) => new Date(v).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })}
+                      fill="#9A9AAF"
+                    />
+                  }
+                  tickSize={10} 
+                />
+              }
+            />
+          }
+          yAxis={
+            <LinearYAxis
+              axisLine={null}
+              tickSeries={<LinearYAxisTickSeries line={null} label={null} tickSize={10} />} 
+            />
+          }
+          series={
+            <AreaSeries
+              type="grouped"
+              interpolation="smooth"
+              area={
+                <Area
+                  gradient={
+                    <Gradient
+                      stops={[
+                        <GradientStop key={1} stopOpacity={0} />,
+                        <GradientStop key={2} offset="100%" stopOpacity={0.4} />,
+                      ]}
+                    />
+                  }
+                />
+              }
+              colorScheme={['#5B14C5', '#DAC5F9', '#B58BF3']} 
+            />
+          }
+          gridlines={<GridlineSeries line={<Gridline strokeColor="rgba(126, 126, 143, 0.3)" />} />}
+        />
+      </div>
+
+      <div className="flex flex-col px-6 pt-4 font-mono divide-y divide-slate-800 transition-colors duration-300">
+        {METRICS_DATA.map((metric) => (
+          <motion.div
+            key={metric.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: metric.delay }}
+            className="flex w-full py-3.5 items-center justify-between"
+          >
+            <div className="flex flex-row gap-2.5 items-center text-xs text-slate-300">
+              <metric.Icon />
+              <span className="truncate" title={metric.tooltip}>
+                {metric.label}
+              </span>
+            </div>
+            <div className="flex gap-3 justify-end items-center">
+              <span className="font-semibold text-base text-white">{metric.value}</span>
+              <metric.TrendIcon baseColor={metric.trendBaseColor} strokeColor={metric.trendStrokeColor} />
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 };
 
