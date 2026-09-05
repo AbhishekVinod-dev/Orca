@@ -72,15 +72,15 @@ export default function LoginPage() {
         </div>
 
         {/* Form Card */}
-        <div className="w-full bg-[#050c1e]/80 backdrop-blur-xl p-8 rounded-2xl border border-cyan-900/40 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col gap-6">
+        <div className="w-full bg-[#050c1e]/80 backdrop-blur-xl p-8 rounded-2xl border border-cyan-900/40 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-visible flex flex-col gap-6">
           
           {/* Top glowing edge gradient */}
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent"></div>
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent pointer-events-none rounded-t-2xl"></div>
 
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
             
             {/* 1. Custom Refined Role Dropdown Picker */}
-            <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
+            <div className="flex flex-col gap-2 relative z-50" ref={dropdownRef}>
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider tech-mono flex justify-between items-center">
                 <span>Select User Role Persona</span>
                 <span className="text-cyan-400 text-[10px] font-bold">AUTHENTICATION STEP</span>
@@ -108,10 +108,10 @@ export default function LoginPage() {
                 <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-cyan-400' : ''}`} />
               </button>
 
-              {/* Custom Animated Floating Dropdown List */}
+              {/* Custom Animated Floating Dropdown List with Smooth Scrolling */}
               {isDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-[#050c1e] border border-cyan-900/60 rounded-xl p-2 shadow-2xl z-50 flex flex-col gap-1.5 backdrop-blur-2xl animate-in fade-in duration-150">
-                  <div className="px-2 py-1 text-[10px] tech-mono font-bold text-slate-500 uppercase border-b border-space-800 pb-1.5 mb-0.5">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#050c1e] border border-cyan-900/80 rounded-xl p-2 shadow-2xl z-50 flex flex-col gap-1.5 backdrop-blur-2xl max-h-64 overflow-y-auto animate-in fade-in duration-150 border-t-2 border-t-cyan-500">
+                  <div className="sticky top-0 bg-[#050c1e] px-2 py-1 text-[10px] tech-mono font-bold text-slate-400 uppercase border-b border-space-800 pb-1.5 mb-0.5 z-10">
                     CHOOSE YOUR OPERATIVE ROLE
                   </div>
                   {ROLE_OPTIONS.map((r) => {
