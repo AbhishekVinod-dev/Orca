@@ -1,11 +1,7 @@
-import { MOCK_PFZ, MOCK_ALERTS, MOCK_EVIDENCE, MOCK_GEOFENCES, MOCK_ROUTES } from '../data/mockData';
 import { PFZZone, MarineAlert, EvidenceSource, Geofence, VesselRoute } from '../types';
 
-// Unset in local dev with no backend running -> every call below falls back
-// to the mock data/timing that was already here (F3's local-mock fallback).
+// The UI must not present synthetic data as live marine intelligence.
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // GET /api/alerts response shape (backend/app/schemas.py Alert) -- different
 // field names than this app's MarineAlert, see docs/MIGRATION_TRACKER.md
@@ -52,6 +48,11 @@ type BackendChatResponse = {
   response: string;
 };
 
+type BackendChatError = {
+  code: string;
+  message: string;
+};
+
 async function streamRealChat(query: string, onStep: (step: BackendAgentStep) => void): Promise<string> {
   const res = await fetch(`${API_URL}/api/chat`, {
     method: 'POST',
@@ -83,6 +84,8 @@ async function streamRealChat(query: string, onStep: (step: BackendAgentStep) =>
         onStep(data as BackendAgentStep);
       } else if (event === 'final') {
         finalResponse = (data as BackendChatResponse).response;
+      } else if (event === 'error') {
+        throw new Error((data as BackendChatError).message);
       }
     }
   }
@@ -91,14 +94,12 @@ async function streamRealChat(query: string, onStep: (step: BackendAgentStep) =>
 
 export const apiService = {
   getPFZ: async (): Promise<PFZZone[]> => {
-    await delay(600);
-    return MOCK_PFZ;
+    return [];
   },
 
   getAlerts: async (): Promise<MarineAlert[]> => {
     if (!API_URL) {
-      await delay(500);
-      return MOCK_ALERTS;
+      return [];
     }
     const res = await fetch(`${API_URL}/api/alerts`);
     if (!res.ok) {
@@ -109,51 +110,26 @@ export const apiService = {
   },
 
   getEvidence: async (): Promise<EvidenceSource[]> => {
-    await delay(800);
-    return MOCK_EVIDENCE;
+    return [];
   },
 
   getGeofences: async (): Promise<Geofence[]> => {
-    await delay(400);
-    return MOCK_GEOFENCES;
+    return [];
   },
 
   getRoutes: async (): Promise<VesselRoute[]> => {
-    await delay(700);
-    return MOCK_ROUTES;
+    return [];
   },
 
-  // Simulating a chat response that takes some time to 'think'
   sendChatMessage: async (message: string): Promise<string> => {
-    await delay(2500);
-    const lowerMsg = message.toLowerCase();
-
-    if (lowerMsg.includes('pfz') || lowerMsg.includes('fish')) {
-      return "I have located several Potential Fishing Zones (PFZ) near your current map center. I've highlighted them on the map. Zone Alpha has the highest suitability based on current SST and chlorophyll levels.";
-    }
-
-    if (lowerMsg.includes('safe') || lowerMsg.includes('cyclone') || lowerMsg.includes('weather')) {
-      return "There is a severe cyclone warning in the Bay of Bengal, and high waves predicted off the Arabian Sea Coast. I recommend staying in harbor or sticking to the designated safe coastal routes.";
-    }
-
-    if (lowerMsg.includes('route')) {
-      return "I've overlaid a safe coastal route on the map avoiding the restricted naval exercise geofence.";
-    }
-
-    return "I am analyzing the latest marine intelligence. Based on current satellite and oceanographic data, conditions are normal, but please review the map and alerts panel for specific localized advisories.";
+    void message;
+    return "Live marine advisory service is unavailable. Check official local maritime authorities before going to sea.";
   },
 
-  // Real SSE-driven chat when NEXT_PUBLIC_API_URL is set; otherwise fires
-  // onStep on the same cadence the old pure-mock simulation used, then
-  // resolves with sendChatMessage's canned reply (F3 local-mock fallback).
+  // Never simulate agent activity or live intelligence when the backend is unavailable.
   streamChat: async (message: string, onStep: (step: BackendAgentStep) => void): Promise<string> => {
     if (!API_URL) {
-      const mockAgents: BackendAgentStep['agent'][] = ['Planner', 'DataAgent', 'RiskAgent'];
-      const mockDelays = [1000, 1500, 1500];
-      for (let i = 0; i < mockAgents.length; i++) {
-        await delay(mockDelays[i]);
-        onStep({ agent: mockAgents[i], status: 'done', action: '', detail: '', duration_ms: mockDelays[i] });
-      }
+      void onStep;
       return apiService.sendChatMessage(message);
     }
     return streamRealChat(message, onStep);

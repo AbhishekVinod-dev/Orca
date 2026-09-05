@@ -1,8 +1,10 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+ORCA is a marine-intelligence frontend with a FastAPI backend. The supported
+backend and its production-readiness status are tracked in
+[`docs/MIGRATION_TRACKER.md`](docs/MIGRATION_TRACKER.md).
 
 ## Getting Started
 
-First, run the development server:
+Run the frontend:
 
 ```bash
 npm run dev
@@ -15,6 +17,18 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+Run the supported backend from a separate terminal:
+
+```bash
+cd backend
+uv sync
+uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Set `NEXT_PUBLIC_API_URL=http://localhost:8000` for live frontend API calls.
+The backend requires `GROQ_API_KEY` for chat. Without the backend, the frontend
+returns an unavailable message instead of synthetic marine intelligence.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

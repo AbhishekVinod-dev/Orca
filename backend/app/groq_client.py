@@ -44,7 +44,9 @@ def classify_intent(query: str) -> str:
     return "GENERAL"
 
 
-def generate_advisory(query: str, intent: str, risk_score: int, language: str) -> str:
+def generate_advisory(
+    query: str, intent: str, risk_score: int, language: str, *, warning_data_available: bool
+) -> str:
     completion = _get_client().chat.completions.create(
         model=RESPONSE_MODEL,
         messages=[
@@ -57,12 +59,17 @@ def generate_advisory(query: str, intent: str, risk_score: int, language: str) -
                     "score (0-100, higher is more dangerous). Do NOT invent specific wind "
                     "speeds, wave heights, or warning text -- official warnings are appended "
                     "separately after your response. Do not repeat or reference specific "
-                    "numeric values you were not given."
+                    "numeric values you were not given. If live official warning data is "
+                    "unavailable, state that you cannot assess current conditions, never say "
+                    "it is safe to go to sea, and direct the user to local maritime authorities."
                 ),
             },
             {
                 "role": "user",
-                "content": f"Query: {query}\nIntent: {intent}\nRisk score: {risk_score}\nRespond in: {language}",
+                "content": (
+                    f"Query: {query}\nIntent: {intent}\nRisk score: {risk_score}\n"
+                    f"Live official warning data available: {warning_data_available}\nRespond in: {language}"
+                ),
             },
         ],
     )

@@ -11,13 +11,14 @@ load_dotenv()
 app = FastAPI()
 
 api_router = APIRouter(prefix="/api/v1")
-app.include_router(api_router)
 
 api_router.include_router(auth_router)
 api_router.include_router(speech_router)
 api_router.include_router(agent_router)
 api_router.include_router(eez_boundaries_router)
 api_router.include_router(pfz_router)
+
+app.include_router(api_router)
 
 
 @app.get("/")

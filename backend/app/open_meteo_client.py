@@ -17,17 +17,18 @@ async def fetch_conditions(lat: float, lng: float) -> dict:
         )
         wave_task = client.get(
             MARINE_URL,
-            params={"latitude": lat, "longitude": lng, "hourly": "wave_height"},
+            params={"latitude": lat, "longitude": lng, "current": "wave_height"},
         )
         wind_resp, wave_resp = await asyncio.gather(wind_task, wave_task)
         wind_resp.raise_for_status()
         wave_resp.raise_for_status()
 
         wind = wind_resp.json()["current"]
-        wave_height = wave_resp.json()["hourly"]["wave_height"][0]
+        wave = wave_resp.json()["current"]
 
         return {
             "wind_speed_kmh": wind["wind_speed_10m"],
             "wind_gusts_kmh": wind["wind_gusts_10m"],
-            "wave_height_m": wave_height,
+            "wave_height_m": wave["wave_height"],
+            "observed_at": wind.get("time"),
         }

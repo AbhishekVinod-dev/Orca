@@ -2,10 +2,29 @@ from langchain_groq import ChatGroq
 from langchain.messages import HumanMessage, AIMessage, SystemMessage
 from dotenv import load_dotenv
 from services.extract_tool import extract_json_between_tags
+import datetime
 import json
 import os
 
 load_dotenv()
+
+
+def _now_iso() -> str:
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def _tool_correction_message(available_tools: dict) -> str:
+    # ponytail: a vague "call a tool" nudge gets ignored or stalls the model
+    # into silence; naming the exact tool and format it already knows from
+    # its own system prompt gets far more reliable compliance.
+    tool_name = next(iter(available_tools), "the required tool") if available_tools else "the required tool"
+    return (
+        "You answered without calling a tool. That is not allowed. "
+        f"Respond now with ONLY this block, filled in with the real arguments "
+        f"from the request:\n<thought>\nI need to call {tool_name} to get real data.\n"
+        f"</thought>\n<tool_call>\n{{\"name\": \"{tool_name}\", \"arguments\": {{...}}}}\n"
+        "</tool_call>"
+    )
 
 
 async def call_agent(
@@ -15,14 +34,22 @@ async def call_agent(
     SYSTEM_PROMPT: str,
     available_tools: dict = None,
     agent_name: str = "agent",
+    evidence: list = None,
+    require_tool_before_final: bool = False,
 ) -> str:
+    if evidence is None:
+        evidence = []
     prompt += f"\nThe role of the user is: {role}"
     messages = [
         SystemMessage(SYSTEM_PROMPT),
         HumanMessage(prompt),
     ]
-    max_loop = 5
+    # ponytail: gpt-oss reasoning models often burn a full loop on an empty
+    # "thinking" turn before producing visible content, so a grounded
+    # tool-call -> final cycle needs more headroom than a plain chat loop.
+    max_loop = 8
     curr_loop = 0
+    tool_called = False
 
     while True:
         curr_loop += 1
@@ -42,6 +69,7 @@ async def call_agent(
                 tool_name = tool_json.get("name")
                 tool_args = tool_json.get("arguments", {})
                 tool_result_content = ""
+                tool_called = True
 
                 if available_tools and tool_name in available_tools:
                     tool_function = available_tools[tool_name]
@@ -52,9 +80,14 @@ async def call_agent(
                         hasattr(tool_function, "__name__")
                         and "call_" in tool_function.__name__
                     ):
+                        # Sub-agent call: its own tool calls append to the same
+                        # shared evidence list, so evidence bubbles up to the
+                        # top-level orchestrator without re-recording here.
                         sub_agent_final_result = ""
                         async for chunk in tool_function(
-                            prompt=tool_args.get("prompt", ""), role=role
+                            prompt=tool_args.get("prompt", ""),
+                            role=role,
+                            evidence=evidence,
                         ):
                             if '"type": "final"' in chunk:
                                 chunk_data = chunk.replace("data: ", "").strip()
@@ -65,14 +98,32 @@ async def call_agent(
                                 yield chunk
                         tool_result_content = sub_agent_final_result
                     else:
-                        # Simple tool
+                        # Simple tool: this is where real evidence is fetched.
                         if inspect.iscoroutinefunction(tool_function):
                             tool_result_content = await tool_function(**tool_args)
                         else:
                             tool_result_content = tool_function(**tool_args)
+                        evidence.append(
+                            {
+                                "agent": agent_name,
+                                "tool": tool_name,
+                                "arguments": tool_args,
+                                "result": tool_result_content,
+                                "timestamp": _now_iso(),
+                            }
+                        )
                 else:
                     tool_result_content = (
                         f"Error: Tool {tool_name} is not available to this agent."
+                    )
+                    evidence.append(
+                        {
+                            "agent": agent_name,
+                            "tool": tool_name,
+                            "arguments": tool_args,
+                            "result": tool_result_content,
+                            "timestamp": _now_iso(),
+                        }
                     )
 
                 messages.append(
@@ -88,15 +139,20 @@ async def call_agent(
                 )
 
         if "<final>" in curr_msg.content:
-            try:
-                final_answer = (
-                    curr_msg.content.split("<final>")[1].split("</final>")[0].strip()
+            if require_tool_before_final and not tool_called:
+                messages.append(
+                    HumanMessage(content=_tool_correction_message(available_tools))
                 )
-                print(f"[DEBUG] {agent_name} final answer: {final_answer}")
-                yield f'data: {{"type": "final", "name": "{agent_name}", "content": {json.dumps(final_answer, ensure_ascii=False)}}}\n\n'
-            except IndexError:
-                yield f'data: {{"type": "error", "name": "{agent_name}", "content": "Malformed final tag from agent."}}\n\n'
-            break  # Exit the loop immediately
+            else:
+                try:
+                    final_answer = (
+                        curr_msg.content.split("<final>")[1].split("</final>")[0].strip()
+                    )
+                    print(f"[DEBUG] {agent_name} final answer: {final_answer}")
+                    yield f'data: {{"type": "final", "name": "{agent_name}", "content": {json.dumps(final_answer, ensure_ascii=False)}}}\n\n'
+                except IndexError:
+                    yield f'data: {{"type": "error", "name": "{agent_name}", "content": "Malformed final tag from agent."}}\n\n'
+                break  # Exit the loop immediately
 
         elif (
             "<tool_call>" not in curr_msg.content
@@ -106,10 +162,15 @@ async def call_agent(
 
             # Don't yield empty strings
             if final_answer:
-                # Clean up quotes and newlines for JSON safety
-                safe_answer = final_answer.replace('"', '\\"').replace("\n", "\\n")
-                yield f'data: {{"type": "final", "content": "{safe_answer}"}}\n\n'
-                break
+                if require_tool_before_final and not tool_called:
+                    messages.append(
+                        HumanMessage(content=_tool_correction_message(available_tools))
+                    )
+                else:
+                    # Clean up quotes and newlines for JSON safety
+                    safe_answer = final_answer.replace('"', '\\"').replace("\n", "\\n")
+                    yield f'data: {{"type": "final", "content": "{safe_answer}"}}\n\n'
+                    break
 
         if curr_loop >= max_loop:
             yield f'data: {{"type": "error", "name": "{agent_name}", "content": "Agent reasoning timed out after {max_loop} attempts."}}\n\n'

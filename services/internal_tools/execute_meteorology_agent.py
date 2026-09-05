@@ -26,7 +26,7 @@ SYSTEM_PROMPT = METEOROLOGY_SYSTEM_PROMPT
 from services.internal_tools.open_meteo import get_marine_weather_forecast
 
 
-async def call_meteorology_agent(prompt: str, role: str) -> str:
+async def call_meteorology_agent(prompt: str, role: str, evidence: list = None) -> str:
     available_tools = {"get_marine_weather_forecast": get_marine_weather_forecast}
 
     async for chunk in call_agent(
@@ -36,6 +36,8 @@ async def call_meteorology_agent(prompt: str, role: str) -> str:
         SYSTEM_PROMPT,
         available_tools=available_tools,
         agent_name="meteorology_agent",
+        evidence=evidence,
+        require_tool_before_final=True,
     ):
         print("From the meteorological agent")
         yield chunk

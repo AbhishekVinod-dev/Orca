@@ -52,6 +52,6 @@ def test_generate_advisory_returns_stripped_content(mock_get_client):
     mock_client.chat.completions.create.return_value = _fake_completion("  Stay safe out there.  ")
     mock_get_client.return_value = mock_client
 
-    result = generate_advisory("is it safe", "SAFETY", 70, "en")
+    result = generate_advisory("is it safe", "SAFETY", 70, "en", warning_data_available=False)
 
     assert result == "Stay safe out there."

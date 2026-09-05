@@ -26,7 +26,7 @@ SYSTEM_PROMPT = SPATIAL_SYSTEM_PROMPT
 from services.internal_tools.pfz_service import get_pfz_by_location
 
 
-async def call_spatial_agent(prompt: str, role: str) -> str:
+async def call_spatial_agent(prompt: str, role: str, evidence: list = None) -> str:
     available_tools = {"get_pfz_by_location": get_pfz_by_location}
 
     async for chunk in call_agent(
@@ -36,6 +36,8 @@ async def call_spatial_agent(prompt: str, role: str) -> str:
         SYSTEM_PROMPT,
         available_tools=available_tools,
         agent_name="spatial_agent",
+        evidence=evidence,
+        require_tool_before_final=True,
     ):
         print("From the spatial agent")
         yield chunk

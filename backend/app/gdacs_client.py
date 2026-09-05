@@ -55,5 +55,7 @@ async def fetch_active_cyclones(country: str = "India") -> list[dict]:
             "expiresAt": p["todate"],
             "source": f"GDACS ({p.get('source') or 'multi-source'})",
             "affectedZones": [c["countryname"] for c in p.get("affectedcountries", [])],
+            "dataStatus": "live",
+            "sourceUrl": GDACS_URL,
         })
     return alerts

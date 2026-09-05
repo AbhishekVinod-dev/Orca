@@ -1,6 +1,6 @@
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 from pydantic.alias_generators import to_camel
 
 AlertType = Literal["cyclone", "lightning", "high-wave", "geofence", "fog", "wind"]
@@ -24,6 +24,9 @@ class Alert(BaseModel):
     wind_speed: Optional[float] = None
     wave_height: Optional[float] = None
     distance: Optional[float] = None
+    data_status: Literal["live", "demo", "mixed"] = "demo"
+    source_url: Optional[str] = None
+    conditions_observed_at: Optional[str] = None
 
 
 class AgentStep(BaseModel):
@@ -60,10 +63,16 @@ class ChatResponse(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    query: str
-    lat: Optional[float] = None
-    lng: Optional[float] = None
-    language: str = "en"
+    query: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2_000)]
+    lat: Optional[float] = Field(default=None, ge=-90, le=90)
+    lng: Optional[float] = Field(default=None, ge=-180, le=180)
+    language: Literal["en", "hi", "ta", "te", "ml"] = "en"
+
+    @model_validator(mode="after")
+    def coordinates_must_be_a_pair(self):
+        if (self.lat is None) != (self.lng is None):
+            raise ValueError("lat and lng must be provided together")
+        return self
 
 
 class PFZZone(BaseModel):
@@ -82,3 +91,5 @@ class PFZZone(BaseModel):
     area_km2: float
     valid_date: str
     source_satellites: list[str]
+    data_status: Literal["historical", "live"] = "historical"
+    limitations: list[str] = Field(default_factory=list)

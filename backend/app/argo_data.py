@@ -77,6 +77,11 @@ def _load_zones() -> list[dict]:
             "area_km2": round((GRID_SIZE * 111) ** 2, 0),  # rough deg->km at equator
             "valid_date": min(dates),  # real historical ARGO observation date, not "today"
             "source_satellites": ["ARGO float profiles (in-situ, not satellite)"],
+            "data_status": "historical",
+            "limitations": [
+                "Historical ARGO near-surface temperature observations, not a live PFZ advisory.",
+                "Chlorophyll is a static reference range, not an observed value.",
+            ],
         })
     return zones
 

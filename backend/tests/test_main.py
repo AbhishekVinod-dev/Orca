@@ -32,6 +32,9 @@ def test_get_alerts_overlays_live_wind_and_wave(mock_fetch, mock_gdacs):
     assert body[0]["id"] == "ALT-001"
     assert body[0]["type"] == "cyclone"
     assert body[0]["coordinates"] == [13.5, 82.1]
+    assert body[0]["dataStatus"] == "mixed"
+    assert body[0]["source"] == "ORCA demo data (not an official warning)"
+    assert body[0]["title"].startswith("DEMO ONLY:")
     # ALT-001 has windSpeed/waveHeight in the mock -> overlaid with live values
     assert body[0]["windSpeed"] == 99
     assert body[0]["waveHeight"] == 3.3
@@ -94,3 +97,16 @@ def test_get_alerts_uses_real_gdacs_cyclone_when_active(mock_gdacs, mock_fetch):
     assert gdacs_alert["title"] == "Tropical Cyclone TESTSTORM-26"
     assert gdacs_alert["source"] == "GDACS (JTWC)"
     assert gdacs_alert["coordinates"] == [13.0, 82.0]
+    assert gdacs_alert["dataStatus"] == "live"
+
+
+def test_pfz_rejects_invalid_coordinate_pairs_and_radius():
+    assert client.get("/api/pfz", params={"lat": 13}).status_code == 422
+    assert client.get("/api/pfz", params={"lat": 91, "lng": 80}).status_code == 422
+    assert client.get("/api/pfz", params={"lat": 13, "lng": 80, "radius": 0}).status_code == 422
+
+
+def test_chat_rejects_empty_prompt_invalid_coordinates_and_language():
+    assert client.post("/api/chat", json={"query": "   "}).status_code == 422
+    assert client.post("/api/chat", json={"query": "hello", "lat": 91, "lng": 80}).status_code == 422
+    assert client.post("/api/chat", json={"query": "hello", "language": "fr"}).status_code == 422

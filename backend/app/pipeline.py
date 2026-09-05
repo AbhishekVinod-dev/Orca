@@ -1,17 +1,15 @@
 import time
 
 from app.groq_client import classify_intent, generate_advisory
-from app.mock_alerts import MOCK_ALERTS
 from app.schemas import AgentStep, ChatResponse
 
 SEVERITY_SCORE = {"critical": 100, "high": 70, "moderate": 40, "low": 15}
-HAZARD_INTENTS = {"SAFETY", "CYCLONE"}
 
 
 def data_agent(intent: str) -> list[dict]:
-    if intent not in HAZARD_INTENTS:
-        return []
-    return MOCK_ALERTS
+    # Demo alerts must never be represented as live operational warnings.
+    # Until an official warning feed is available, safety advice has no alert input.
+    return []
 
 
 def risk_agent(alerts: list[dict]) -> int:
@@ -45,10 +43,10 @@ def stream_chat_pipeline(query: str, language: str = "en"):
     step = AgentStep(
         agent="DataAgent",
         status="done",
-        action="Fetching alerts",
-        detail=f"Retrieved {len(alerts)} active alert(s)",
+        action="Checking warning availability",
+        detail="No live official warning feed is configured; demo alerts were excluded",
         duration_ms=int((time.perf_counter() - start) * 1000),
-        sources=["Demo-mode mock data"],
+        sources=[],
     )
     steps.append(step)
     yield ("step", step)
@@ -67,7 +65,7 @@ def stream_chat_pipeline(query: str, language: str = "en"):
     yield ("step", step)
 
     start = time.perf_counter()
-    advisory = generate_advisory(query, intent, risk_score, language)
+    advisory = generate_advisory(query, intent, risk_score, language, warning_data_available=bool(alerts))
     response_text = advisory
     if alerts:
         warnings_block = "\n\n".join(
@@ -79,7 +77,7 @@ def stream_chat_pipeline(query: str, language: str = "en"):
         agent="ResponseAgent",
         status="done",
         action="Generating response",
-        detail="Synthesized advisory with official warnings appended verbatim",
+        detail="Generated an advisory without unsourced warning data",
         duration_ms=int((time.perf_counter() - start) * 1000),
         sources=[],
     )
