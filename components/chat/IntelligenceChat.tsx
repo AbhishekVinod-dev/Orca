@@ -1,7 +1,5 @@
-"use client";
-
 import { useState, useRef, useEffect } from 'react';
-import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit, Mic, MicOff, AlertTriangle } from 'lucide-react';
+import { Send, MapPin, Loader2, Globe, Languages, Route as RouteIcon, FileText, BrainCircuit, Mic, MicOff, AlertTriangle, ChevronDown, Check } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
 import { useMapStore } from '../../lib/store/mapStore';
 import { useGeolocation } from '../../lib/geo/useGeolocation';
@@ -22,10 +20,13 @@ type Message = {
 export function IntelligenceChat() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [language, setLanguage] = useState('en'); // Default: English
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   
+  // Language Selector Dropdown State
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
   // Explainable AI Modal State
   const [explainOpen, setExplainOpen] = useState(false);
   const [explainData, setExplainData] = useState<any>(null);
@@ -33,7 +34,24 @@ export function IntelligenceChat() {
   // Inline Message Expansions (Sources / Reasoning)
   const [expandedMsg, setExpandedMsg] = useState<{ id: string, type: 'sources' | 'reasoning' } | null>(null);
 
-  const { setGlobeTarget, setRoutePath, activeRole, disclosureLevel, bandwidthMode, language: storeLanguage } = useAppStore();
+  const { setGlobeTarget, setRoutePath, activeRole, disclosureLevel, bandwidthMode, language: storeLanguage, setLanguage: setStoreLanguage } = useAppStore();
+  const [language, setLocalLanguage] = useState<string>(storeLanguage || 'en');
+
+  const setLanguage = (code: string) => {
+    setLocalLanguage(code);
+    setStoreLanguage(code);
+  };
+
+  // Close language dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const { userLocation } = useMapStore();
   
   // Trigger geolocation on component mount
@@ -136,13 +154,6 @@ export function IntelligenceChat() {
     setExplainOpen(true);
   };
 
-  const cycleLanguage = () => {
-    const langs = getAllLanguageCodes();
-    const currentIndex = langs.indexOf(language as LanguageCode);
-    const nextIndex = (currentIndex + 1) % langs.length;
-    setLanguage(langs[nextIndex]);
-  };
-
   const toggleListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -200,15 +211,55 @@ export function IntelligenceChat() {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={cycleLanguage}
-              className="flex items-center gap-1.5 text-xs font-semibold text-slate-300 bg-space-800 hover:bg-space-700 px-2 py-1 rounded-sm transition-colors"
-              title="Regional Language Support"
-            >
-              <Languages size={14} />
-              {getLanguageName(language as LanguageCode)}
-            </button>
+          <div className="flex items-center gap-3">
+            {/* Custom Interactive Glass Language Dropdown */}
+            <div className="relative" ref={langRef}>
+              <button 
+                type="button"
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-200 hover:text-white bg-space-900/90 hover:bg-space-800 border border-space-700 px-2.5 py-1 rounded-lg transition-all shadow-sm cursor-pointer"
+                title="Select Regional Language"
+              >
+                <Languages size={14} className="text-teal-400" />
+                <span>{getLanguageName(language as LanguageCode)}</span>
+                <ChevronDown size={13} className={`text-slate-400 transition-transform ${langDropdownOpen ? 'rotate-180 text-teal-400' : ''}`} />
+              </button>
+
+              {/* Floating Glass Dropdown Menu */}
+              {langDropdownOpen && (
+                <div className="absolute right-0 top-full mt-1.5 w-48 bg-[#050c1e] border border-teal-500/30 rounded-xl p-1.5 shadow-2xl z-50 flex flex-col gap-1 backdrop-blur-2xl max-h-64 overflow-y-auto animate-in fade-in duration-150 no-scrollbar">
+                  <div className="px-2 py-1 text-[10px] tech-mono font-bold text-slate-400 uppercase border-b border-space-800 mb-0.5 sticky top-0 bg-[#050c1e]/90 backdrop-blur-md">
+                    REGIONAL LANGUAGE
+                  </div>
+                  {getAllLanguageCodes().slice(0, 12).map((code) => {
+                    const isSelected = language === code;
+                    const native = getLanguageName(code as LanguageCode);
+                    const langObj = LANGUAGES[code as LanguageCode];
+                    return (
+                      <button
+                        key={code}
+                        onClick={() => {
+                          setLanguage(code);
+                          setLangDropdownOpen(false);
+                        }}
+                        className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                          isSelected
+                            ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold'
+                            : 'text-slate-300 hover:bg-space-900 hover:text-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>{native}</span>
+                          <span className="text-[10px] text-slate-500 tech-mono">({langObj?.englishName || code})</span>
+                        </div>
+                        {isSelected && <Check size={13} className="text-teal-400" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center gap-2 text-[10px] tech-mono text-cyan-500">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
               SAT.LINK ACTIVE
