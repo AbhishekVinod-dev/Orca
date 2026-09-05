@@ -195,7 +195,7 @@ export function IntelligenceChat() {
 
   return (
     <>
-      <div className="flex flex-col h-full w-full bg-space-950 border-r border-space-800 lg:w-[450px] xl:w-[500px] flex-shrink-0 relative z-20">
+      <div className="flex flex-col h-full w-full bg-space-950 border-r border-space-800 flex-shrink-0 relative z-20">
         
         {/* Header with Language Selector */}
         <div className="p-6 border-b border-space-800 flex items-center justify-between">

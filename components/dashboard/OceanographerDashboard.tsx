@@ -89,7 +89,7 @@ export function OceanographerDashboard() {
       )}
 
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040b18]/80 backdrop-blur-md p-4 rounded-xl border border-space-800 shadow-lg">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040c1d]/90 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl">
         <div>
           <h1 className="text-lg font-bold text-white tracking-wide">OCEANOGRAPHIC SCIENTIFIC WORKSPACE</h1>
           <p className="text-xs text-slate-400 mt-0.5 tech-mono">
@@ -102,16 +102,16 @@ export function OceanographerDashboard() {
             setViewMode('2d');
             showToast('🗺️ Switched to 2D GIS Map view!');
           }}
-          className="flex items-center gap-2 px-3.5 py-2 bg-cyan-600/20 border border-cyan-500/40 hover:bg-cyan-600/30 text-cyan-300 text-xs font-semibold rounded-lg transition-all cursor-pointer shadow"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-lg shadow-cyan-950/50 active:scale-[0.98]"
         >
-          <Eye size={14} className="text-cyan-400" />
+          <Eye size={15} />
           <span>Launch Spatial GIS View</span>
         </button>
       </div>
 
       {/* 1. Multi-Layer GIS Control Panel */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border border-space-800 flex flex-col gap-4 shadow-md">
-        <div className="flex justify-between items-center border-b border-space-800 pb-3">
+      <div className="bg-[#040c1d]/90 p-5 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex justify-between items-center border-b border-slate-800/80 pb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Layers className="text-cyan-400" size={18} />
             ACTIVE SATELLITE & SENSOR GIS OVERLAY LAYERS
@@ -135,14 +135,14 @@ export function OceanographerDashboard() {
                   setActiveLayers(prev => ({ ...prev, [layer.key]: nextState }));
                   showToast(`Layer [${layer.label}] toggled ${nextState ? 'ON' : 'OFF'}`);
                 }}
-                className={`p-3 rounded-lg text-xs font-medium border flex items-center justify-between transition-all cursor-pointer ${
+                className={`p-3.5 rounded-xl text-xs font-medium border flex items-center justify-between transition-all cursor-pointer ${
                   isActive
                     ? layer.color
-                    : 'bg-space-950 border-space-800 text-slate-400 hover:border-space-700'
+                    : 'bg-[#020612]/80 border-slate-800/80 text-slate-400 hover:border-slate-700'
                 }`}
               >
                 <span className="font-semibold">{layer.label}</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded tech-mono ${
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full tech-mono ${
                   isActive ? 'bg-white/10' : 'bg-space-900 text-slate-500'
                 }`}>
                   {isActive ? 'ACTIVE' : 'OFF'}
@@ -154,8 +154,8 @@ export function OceanographerDashboard() {
       </div>
 
       {/* 2. Argo Float Depth Profile Chart (Recharts) */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border border-space-800 flex flex-col gap-4 shadow-md">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-space-800 pb-3">
+      <div className="bg-[#040c1d]/90 p-5 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Cpu className="text-teal-400" size={18} />
@@ -164,29 +164,29 @@ export function OceanographerDashboard() {
             <p className="text-xs text-slate-400">Vertical thermocline & halocline profile down to 2,000m depth.</p>
           </div>
 
-          <div className="flex items-center gap-1 bg-space-950 p-1 rounded-lg border border-space-800 text-xs">
+          <div className="flex items-center gap-1 bg-[#020612] p-1 rounded-xl border border-slate-800/80 text-xs">
             <button
               onClick={() => setChartMetric('both')}
-              className={`px-3 py-1 rounded font-semibold transition-all ${chartMetric === 'both' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'both' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
             >
               All Metrics
             </button>
             <button
               onClick={() => setChartMetric('temp')}
-              className={`px-3 py-1 rounded font-semibold transition-all ${chartMetric === 'temp' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'temp' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
             >
               Temp Only
             </button>
             <button
               onClick={() => setChartMetric('salinity')}
-              className={`px-3 py-1 rounded font-semibold transition-all ${chartMetric === 'salinity' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'}`}
+              className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'salinity' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
             >
               Salinity Only
             </button>
           </div>
         </div>
 
-        <div className="w-full h-64 bg-space-950/90 p-4 rounded-xl border border-space-800">
+        <div className="w-full h-64 bg-[#020612]/90 p-4 rounded-xl border border-slate-800/80">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={ARGO_DEPTH_DATA} margin={{ top: 10, right: 20, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
@@ -199,7 +199,7 @@ export function OceanographerDashboard() {
               <YAxis yAxisId="left" stroke="#06b6d4" tick={{ fontSize: 11 }} domain={[0, 32]} />
               <YAxis yAxisId="right" orientation="right" stroke="#10b981" tick={{ fontSize: 11 }} domain={[34, 36]} />
               <Tooltip 
-                contentStyle={{ backgroundColor: '#050c1e', borderColor: '#06b6d4', borderRadius: '8px', fontSize: '12px', color: '#fff' }} 
+                contentStyle={{ backgroundColor: '#050c1e', borderColor: '#06b6d4', borderRadius: '12px', fontSize: '12px', color: '#fff' }} 
               />
               <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '6px' }} />
               {(chartMetric === 'both' || chartMetric === 'temp') && (
@@ -214,8 +214,8 @@ export function OceanographerDashboard() {
       </div>
 
       {/* 3. Evidence & Conflict Inspector Panel */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border border-space-800 flex flex-col gap-4 shadow-md">
-        <div className="flex justify-between items-center border-b border-space-800 pb-3">
+      <div className="bg-[#040c1d]/90 p-5 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex justify-between items-center border-b border-slate-800/80 pb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <AlertCircle className="text-amber-400" size={18} />
             MULTI-SENSOR CONFLICT & CROSS-VALIDATION INSPECTOR
@@ -223,7 +223,7 @@ export function OceanographerDashboard() {
           <button
             onClick={handleRunAudit}
             disabled={auditing}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-xs font-semibold rounded-lg transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-md"
           >
             <RefreshCw size={13} className={auditing ? 'animate-spin' : ''} />
             <span>{auditing ? 'Auditing Variance...' : 'Run Audit Scan'}</span>
@@ -231,8 +231,8 @@ export function OceanographerDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-          <div className="bg-space-950 p-4 rounded-xl border border-space-800 flex flex-col gap-1">
-            <div className="flex items-center justify-between border-b border-space-800 pb-2 mb-1">
+          <div className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80 flex flex-col gap-1">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-1">
               <span className="text-cyan-400 font-bold text-sm">Oceansat-3 Satellite Infra</span>
               <span className="text-[10px] tech-mono text-slate-400">Pass 08:42 UTC</span>
             </div>
@@ -241,8 +241,8 @@ export function OceanographerDashboard() {
             <p className="text-slate-500 text-[10px] mt-1 tech-mono">Confidence Margin: ±0.3°C</p>
           </div>
 
-          <div className="bg-space-950 p-4 rounded-xl border border-space-800 flex flex-col gap-1">
-            <div className="flex items-center justify-between border-b border-space-800 pb-2 mb-1">
+          <div className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80 flex flex-col gap-1">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-1">
               <span className="text-emerald-400 font-bold text-sm">NIOT Coastal Ocean Buoy</span>
               <span className="text-[10px] tech-mono text-slate-400">In-situ 08:45 UTC</span>
             </div>

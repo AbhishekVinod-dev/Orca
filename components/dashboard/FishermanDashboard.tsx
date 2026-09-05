@@ -110,27 +110,27 @@ export function FishermanDashboard() {
       )}
 
       {/* Header Banner & Live Status */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040b18]/80 backdrop-blur-md p-4 rounded-xl border border-space-800 shadow-lg">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040c1d]/90 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-bold text-white tracking-wide">FISHERMAN OCEANIC ADVISORY</h1>
-            <span className="bg-teal-500/10 border border-teal-500/30 text-teal-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full tech-mono">
+            <span className="bg-teal-500/15 border border-teal-500/30 text-teal-300 text-[10px] font-bold px-3 py-1 rounded-full tech-mono">
               CHENNAI HARBOUR SECTOR
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1 flex items-center gap-2">
-            <MapPin size={12} className="text-cyan-400" />
+            <MapPin size={13} className="text-cyan-400" />
             Coromandel Coast • Sector 04 (13.0827°N, 80.2707°E)
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={handleRefreshWeatherData}
             disabled={isRefreshing}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-space-900 hover:bg-space-800 border border-space-700 text-slate-200 hover:text-white rounded-lg text-xs font-semibold transition-all cursor-pointer shadow"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#020612]/90 hover:bg-space-800 border border-slate-700/60 text-slate-200 hover:text-white rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-md"
           >
-            <RefreshCw size={13} className={`text-cyan-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw size={14} className={`text-cyan-400 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>{isRefreshing ? 'Updating...' : 'Sync Live Telemetry'}</span>
           </button>
 
@@ -139,10 +139,10 @@ export function FishermanDashboard() {
               setAudioPlaying(!audioPlaying);
               showToast(audioPlaying ? 'Audio bulletin paused.' : '🔊 Playing coastal weather audio bulletin in Tamil/English...');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer shadow ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-md ${
               audioPlaying 
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse' 
-                : 'bg-space-900 border-space-700 text-slate-300 hover:text-white'
+                : 'bg-[#020612]/90 border-slate-700/60 text-slate-300 hover:text-white'
             }`}
           >
             {audioPlaying ? <VolumeX size={14} /> : <Volume2 size={14} className="text-amber-400" />}
@@ -152,16 +152,18 @@ export function FishermanDashboard() {
       </div>
 
       {/* 1. Hero Safety Status Banner */}
-      <div className="p-5 rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/60 via-[#031510] to-[#040e1a] text-emerald-100 shadow-xl flex flex-col gap-4">
+      <div className="p-6 rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 via-[#031510] to-[#040e1a] text-emerald-100 shadow-2xl flex flex-col gap-4 relative overflow-hidden backdrop-blur-xl">
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-xl">
-              <ShieldCheck size={32} className="text-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-3.5">
+            <div className="p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl shadow-lg">
+              <ShieldCheck size={34} className="text-emerald-400 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold tracking-wide text-white">✅ SAFE TO SAIL — OPTIMAL SEAFARING CONDITIONS</h2>
-                <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded tech-mono border border-emerald-500/40">
+                <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full tech-mono border border-emerald-500/40">
                   FLAG 0 (GREEN)
                 </span>
               </div>
@@ -171,27 +173,27 @@ export function FishermanDashboard() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 bg-space-950/80 px-3 py-1.5 rounded-lg border border-teal-500/30 text-xs text-teal-300 tech-mono">
+          <div className="flex items-center gap-2 bg-[#020612]/80 px-3.5 py-1.5 rounded-xl border border-teal-500/30 text-xs text-teal-300 tech-mono">
             <CloudDownload size={14} className="text-teal-400" />
             <span>Cache: {lastUpdated} • Low-BW Ready</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-space-950/70 p-3.5 rounded-lg border border-space-800/80 text-xs tech-mono">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80 text-xs tech-mono">
           <div>
-            <span className="text-slate-400 block text-[10px]">WAVE HEIGHT (Hs)</span>
+            <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider mb-0.5">WAVE HEIGHT (Hs)</span>
             <span className="text-emerald-400 font-bold text-sm">1.1 m (Knee High)</span>
           </div>
           <div>
-            <span className="text-slate-400 block text-[10px]">SURFACE WIND</span>
+            <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider mb-0.5">SURFACE WIND</span>
             <span className="text-white font-bold text-sm">11 Kts (East-Northeast)</span>
           </div>
           <div>
-            <span className="text-slate-400 block text-[10px]">CURRENT SPEED</span>
+            <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider mb-0.5">CURRENT SPEED</span>
             <span className="text-cyan-400 font-bold text-sm">0.6 Knots (Southerly)</span>
           </div>
           <div>
-            <span className="text-slate-400 block text-[10px]">VISIBILITY</span>
+            <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider mb-0.5">VISIBILITY</span>
             <span className="text-white font-bold text-sm">12.5 KM (Clear Sky)</span>
           </div>
         </div>
@@ -210,7 +212,7 @@ export function FishermanDashboard() {
 
           <button
             onClick={() => setCatchModalOpen(true)}
-            className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold rounded-lg text-xs transition-all flex items-center gap-2 shadow-lg cursor-pointer"
+            className="px-4 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg shadow-teal-950/50 cursor-pointer active:scale-[0.98]"
           >
             <Anchor size={15} />
             Log Ground-Truth Catch
@@ -221,13 +223,15 @@ export function FishermanDashboard() {
           {PFZ_ZONES.map((zone) => (
             <div 
               key={zone.id} 
-              className="bg-[#040c1d] border border-space-800 hover:border-cyan-500/40 p-4 rounded-xl flex flex-col justify-between gap-4 transition-all shadow-md hover:shadow-cyan-900/10 group"
+              className="bg-[#040c1d]/90 border border-white/10 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col justify-between gap-4 transition-all duration-300 shadow-2xl backdrop-blur-xl group relative overflow-hidden"
             >
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between items-center border-b border-space-800/80 pb-2">
+              <div className="absolute -top-10 -right-10 w-28 h-28 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="flex flex-col gap-2.5">
+                <div className="flex justify-between items-center border-b border-slate-800/80 pb-2.5">
                   <span className="font-bold text-white text-sm tracking-wide">{zone.id}</span>
-                  <span className="text-xs font-bold text-teal-300 tech-mono bg-teal-500/15 border border-teal-500/30 px-2 py-0.5 rounded-full">
-                    {zone.match}% SPECIES MATCH
+                  <span className="text-xs font-bold text-teal-300 tech-mono bg-teal-500/15 border border-teal-500/30 px-3 py-0.5 rounded-full">
+                    {zone.match}% MATCH
                   </span>
                 </div>
 
@@ -236,7 +240,7 @@ export function FishermanDashboard() {
                   <span className="font-semibold text-cyan-300">{zone.species}</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-[11px] tech-mono bg-space-950/80 p-2.5 rounded-lg border border-space-800">
+                <div className="grid grid-cols-2 gap-2 text-[11px] tech-mono bg-[#020612]/80 p-3 rounded-xl border border-slate-800/80">
                   <div>Distance: <span className="text-white font-bold">{zone.bearing}</span></div>
                   <div>SST: <span className="text-white font-bold">{zone.sst}°C</span></div>
                   <div>Chl-a: <span className="text-emerald-400 font-bold">{zone.chlorophyll} mg/m³</span></div>
@@ -246,7 +250,7 @@ export function FishermanDashboard() {
 
               <button
                 onClick={() => handleNavigateToZone(zone)}
-                className="w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all shadow cursor-pointer group-hover:bg-cyan-500"
+                className="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-cyan-950/50 cursor-pointer active:scale-[0.98]"
               >
                 <Navigation size={14} />
                 NAVIGATE TO ZONE
@@ -259,8 +263,8 @@ export function FishermanDashboard() {
       {/* 3. Fish Market Economics & Emergency SOS Bar Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Fish Harbour Prices Card */}
-        <div className="md:col-span-2 bg-[#040c1d] border border-space-800 p-4 rounded-xl flex flex-col gap-3">
-          <div className="flex items-center justify-between border-b border-space-800 pb-2">
+        <div className="md:col-span-2 bg-[#040c1d]/90 border border-white/10 p-5 rounded-2xl flex flex-col gap-3 shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <TrendingUp size={16} className="text-emerald-400" />
               LIVE CHENNAI FISH HARBOUR LANDING PRICES
@@ -270,9 +274,9 @@ export function FishermanDashboard() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {FISH_MARKET_PRICES.map((item, idx) => (
-              <div key={idx} className="bg-space-950/80 p-3 rounded-lg border border-space-800 flex flex-col justify-between">
+              <div key={idx} className="bg-[#020612]/80 p-3 rounded-xl border border-slate-800/80 flex flex-col justify-between">
                 <span className="text-[11px] text-slate-400 line-clamp-1">{item.name}</span>
-                <div className="flex items-baseline justify-between mt-1">
+                <div className="flex items-baseline justify-between mt-1.5">
                   <span className="text-sm font-bold text-white">{item.price}</span>
                   <span className={`text-[10px] font-bold tech-mono ${item.isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {item.trend}
@@ -284,20 +288,20 @@ export function FishermanDashboard() {
         </div>
 
         {/* Coastal Guard Emergency Distress Link */}
-        <div className="bg-[#040c1d] border border-space-800 p-4 rounded-xl flex flex-col justify-between gap-3">
+        <div className="bg-[#040c1d]/90 border border-white/10 p-5 rounded-2xl flex flex-col justify-between gap-3 shadow-2xl backdrop-blur-xl">
           <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-space-800 pb-2">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/80 pb-2.5">
               <PhoneCall size={16} className="text-rose-400" />
               COAST GUARD DISTRESS RADIO
             </h3>
-            <p className="text-xs text-slate-400 mt-2">
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
               Instant satellite-relayed emergency beacon to Indian Coast Guard Chennai Maritime Rescue Coordination Centre (MRCC).
             </p>
           </div>
 
           <button
             onClick={() => showToast('🚨 TEST DISTRESS SIGNAL: Coast Guard MRCC link verified. Signal strong (VHF Ch 16).')}
-            className="w-full py-2 bg-rose-600/20 border border-rose-500/50 hover:bg-rose-600/30 text-rose-300 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full py-2.5 bg-rose-600/20 border border-rose-500/50 hover:bg-rose-600/30 text-rose-300 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg active:scale-[0.98]"
           >
             <Radio size={14} className="animate-pulse text-rose-400" />
             TEST DISTRESS CHANNEL (VHF 16)

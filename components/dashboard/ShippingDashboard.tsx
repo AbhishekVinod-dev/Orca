@@ -105,11 +105,11 @@ export function ShippingDashboard() {
       )}
 
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040b18]/80 backdrop-blur-md p-4 rounded-xl border border-space-800 shadow-lg">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040c1d]/90 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-bold text-white tracking-wide">COMMERCIAL SHIPPING & ROUTING NAVIGATION</h1>
-            <span className="bg-blue-500/15 border border-blue-500/30 text-blue-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full tech-mono">
+            <span className="bg-blue-500/15 border border-blue-500/30 text-blue-300 text-[10px] font-bold px-3 py-1 rounded-full tech-mono">
               SOLAS & IMO OPTIMIZED
             </span>
           </div>
@@ -120,7 +120,7 @@ export function ShippingDashboard() {
 
         <button
           onClick={handlePlotSafeRoute}
-          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold rounded-lg text-xs transition-all shadow-lg cursor-pointer flex items-center gap-2"
+          className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-semibold rounded-xl text-xs transition-all shadow-lg shadow-blue-950/50 cursor-pointer flex items-center gap-2 active:scale-[0.98]"
         >
           <Navigation size={15} />
           <span>Plot Corridor on Map</span>
@@ -128,8 +128,8 @@ export function ShippingDashboard() {
       </div>
 
       {/* 1. Safe Route Corridor Planner */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border-l-4 border-l-blue-500 border border-space-800 flex flex-col gap-4 shadow-md">
-        <div className="flex justify-between items-center border-b border-space-800 pb-3">
+      <div className="bg-[#040c1d]/90 p-6 rounded-2xl border-l-4 border-l-blue-500 border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex justify-between items-center border-b border-slate-800/80 pb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <RouteIcon className="text-blue-400" size={18} />
             SAFE VESSEL ROUTE CORRIDOR SELECTION
@@ -146,8 +146,8 @@ export function ShippingDashboard() {
                 onClick={() => setSelectedRouteId(route.id)}
                 className={`p-4 rounded-xl border flex flex-col justify-between gap-3 cursor-pointer transition-all ${
                   isSelected
-                    ? 'bg-blue-500/10 border-blue-500/50 shadow-lg shadow-blue-950/40'
-                    : 'bg-space-950 border-space-800 hover:border-space-700'
+                    ? 'bg-blue-500/15 border-blue-500/50 shadow-lg shadow-blue-950/40'
+                    : 'bg-[#020612]/80 border-slate-800/80 hover:border-slate-700'
                 }`}
               >
                 <div>
@@ -155,10 +155,10 @@ export function ShippingDashboard() {
                     <span className="text-xs font-bold text-white">{route.name}</span>
                     {isSelected && <CheckCircle2 size={16} className="text-blue-400 shrink-0" />}
                   </div>
-                  <p className="text-[11px] text-slate-400">{route.desc}</p>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">{route.desc}</p>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] tech-mono bg-space-900/80 p-2 rounded-lg border border-space-800">
+                <div className="flex items-center justify-between text-[11px] tech-mono bg-[#020612] p-2.5 rounded-lg border border-slate-800/80">
                   <span>Distance: <strong className="text-white">{route.distance}</strong></span>
                   <span>ETA: <strong className="text-cyan-400">{route.eta}</strong></span>
                 </div>
@@ -169,14 +169,14 @@ export function ShippingDashboard() {
       </div>
 
       {/* 2. Sea State & Wave Spectrum Corridor */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border border-space-800 flex flex-col gap-4 shadow-md">
-        <div className="flex flex-wrap justify-between items-center gap-3 border-b border-space-800 pb-3">
+      <div className="bg-[#040c1d]/90 p-6 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800/80 pb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Waves className="text-cyan-400" size={18} />
             SEA STATE & WAVE SPECTRUM CORRIDOR FORECAST
           </h3>
 
-          <div className="flex items-center gap-1 bg-space-950 p-1 rounded-lg border border-space-800 text-xs">
+          <div className="flex items-center gap-1 bg-[#020612] p-1 rounded-xl border border-slate-800/80 text-xs">
             {(['+0h', '+12h', '+24h'] as const).map(horizon => (
               <button
                 key={horizon}
@@ -184,8 +184,8 @@ export function ShippingDashboard() {
                   setTimeHorizon(horizon);
                   showToast(`Sea State forecast window set to ${horizon}`);
                 }}
-                className={`px-3 py-1 rounded font-semibold transition-all ${
-                  timeHorizon === horizon ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'
+                className={`px-3 py-1 rounded-lg font-semibold transition-all ${
+                  timeHorizon === horizon ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'
                 }`}
               >
                 {horizon === '+0h' ? 'Now (+0h)' : horizon}
@@ -195,24 +195,24 @@ export function ShippingDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center text-xs tech-mono">
-          <div className="bg-space-950 p-4 rounded-xl border border-space-800">
-            <div className="text-slate-400 text-[10px]">SIGNIFICANT WAVE (Hs)</div>
+          <div className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80">
+            <div className="text-slate-400 text-[10px] font-medium uppercase tracking-wider">SIGNIFICANT WAVE (Hs)</div>
             <div className="text-white font-bold text-lg mt-1">
               {timeHorizon === '+0h' ? '1.3 m' : timeHorizon === '+12h' ? '1.8 m' : '2.1 m'}
             </div>
             <div className="text-[10px] text-emerald-400 mt-1">Slight Sea (Douglas Scale 3)</div>
           </div>
 
-          <div className="bg-space-950 p-4 rounded-xl border border-space-800">
-            <div className="text-slate-400 text-[10px]">SWELL PERIOD (Tp)</div>
+          <div className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80">
+            <div className="text-slate-400 text-[10px] font-medium uppercase tracking-wider">SWELL PERIOD (Tp)</div>
             <div className="text-cyan-400 font-bold text-lg mt-1">
               {timeHorizon === '+0h' ? '8.4 sec' : timeHorizon === '+12h' ? '9.1 sec' : '10.2 sec'}
             </div>
             <div className="text-[10px] text-slate-300 mt-1">Long Period Open Swell</div>
           </div>
 
-          <div className="bg-space-950 p-4 rounded-xl border border-space-800">
-            <div className="text-slate-400 text-[10px]">WIND SEA / SWELL RATIO</div>
+          <div className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80">
+            <div className="text-slate-400 text-[10px] font-medium uppercase tracking-wider">WIND SEA / SWELL RATIO</div>
             <div className="text-teal-400 font-bold text-lg mt-1">0.8m / 1.1m</div>
             <div className="text-[10px] text-emerald-400 mt-1">Favorable Vessel Heading</div>
           </div>
@@ -220,18 +220,18 @@ export function ShippingDashboard() {
       </div>
 
       {/* 3. Port Entrance & Draft Advisory Widget */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border border-space-800 flex flex-col gap-4 shadow-md">
-        <div className="flex flex-wrap justify-between items-center gap-3 border-b border-space-800 pb-3">
+      <div className="bg-[#040c1d]/90 p-6 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800/80 pb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Anchor className="text-teal-400" size={18} />
             PORT ENTRANCE DRAFT & HARBOR ADVISORY
           </h3>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <select
               value={selectedPort}
               onChange={(e) => setSelectedPort(e.target.value)}
-              className="bg-space-950 border border-space-700 text-xs text-white px-3 py-1.5 rounded-lg focus:outline-none focus:border-cyan-500 font-semibold cursor-pointer"
+              className="bg-[#020612] border border-slate-700/60 text-xs text-white px-3.5 py-2 rounded-xl focus:outline-none focus:border-cyan-500 font-semibold cursor-pointer shadow-md"
             >
               <option value="CHENNAI_PORT">Chennai Port (INMAA)</option>
               <option value="VIZAG_PORT">Visakhapatnam Port (INVTZ)</option>
@@ -240,15 +240,15 @@ export function ShippingDashboard() {
 
             <button
               onClick={handleRequestBerthClearance}
-              className="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-lg transition-all shadow cursor-pointer flex items-center gap-1.5"
+              className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-xs font-semibold rounded-xl transition-all shadow-lg shadow-teal-950/50 cursor-pointer flex items-center gap-1.5 active:scale-[0.98]"
             >
               <ShieldCheck size={14} />
-              <span>Request Berthing Clearance</span>
+              <span>Request Clearance</span>
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-space-950 p-4 rounded-xl border border-space-800">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80">
           <div>
             <div className="text-slate-400 text-[10px] tech-mono">TARGET PORT HARBOR</div>
             <div className="text-white font-bold text-sm mt-1">{activePort.name} ({activePort.unlocode})</div>

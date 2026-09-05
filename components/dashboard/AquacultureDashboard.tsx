@@ -39,11 +39,11 @@ export function AquacultureDashboard() {
       )}
 
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040b18]/80 backdrop-blur-md p-4 rounded-xl border border-space-800 shadow-lg">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040c1d]/90 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-bold text-white tracking-wide">AQUACULTURE & MARICULTURE TELEMETRY</h1>
-            <span className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full tech-mono">
+            <span className="bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold px-3 py-1 rounded-full tech-mono">
               TAMIL NADU OFFSHORE CAGE SECTOR
             </span>
           </div>
@@ -54,7 +54,7 @@ export function AquacultureDashboard() {
 
         <button
           onClick={handleCalibrateSensors}
-          className="px-3.5 py-2 bg-space-900 hover:bg-space-800 border border-space-700 text-slate-200 text-xs font-semibold rounded-lg transition-all cursor-pointer shadow flex items-center gap-1.5"
+          className="px-4 py-2 bg-[#020612]/90 hover:bg-space-800 border border-slate-700/60 text-slate-200 text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-1.5"
         >
           <Sliders size={14} className="text-emerald-400" />
           <span>Calibrate Buoy Telemetry</span>
@@ -62,19 +62,19 @@ export function AquacultureDashboard() {
       </div>
 
       {/* 1. Harmful Algal Bloom (HAB) Alert Widget */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border-l-4 border-l-emerald-500 border border-space-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-xl">
-            <ShieldCheck size={32} className="text-emerald-400" />
+      <div className="bg-[#040c1d]/90 p-6 rounded-2xl border-l-4 border-l-emerald-500 border border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex items-center gap-3.5">
+          <div className="p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl shadow-lg">
+            <ShieldCheck size={34} className="text-emerald-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-white uppercase tracking-wide">HARMFUL ALGAL BLOOM (HAB) INDEX: CLEAR</h3>
-              <span className="text-[10px] font-bold tech-mono text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-bold tech-mono text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-2.5 py-0.5 rounded-full">
                 NO BLOOM DETECTED
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
               Oceansat-3 Chlorophyll-a optical sensors confirm zero toxic Karenia brevis / Dinophysis bloom anomalies in mariculture zone.
             </p>
           </div>
@@ -83,7 +83,7 @@ export function AquacultureDashboard() {
         <button
           onClick={handleRefreshHABScan}
           disabled={isScanning}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-all shadow cursor-pointer flex items-center gap-2 shrink-0"
+          className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl transition-all shadow-lg shadow-emerald-950/50 cursor-pointer flex items-center gap-2 shrink-0 active:scale-[0.98]"
         >
           <RefreshCw size={14} className={isScanning ? 'animate-spin' : ''} />
           <span>{isScanning ? 'Scanning Satellite...' : `Scan HAB (Last: ${lastScanTime})`}</span>
@@ -91,8 +91,8 @@ export function AquacultureDashboard() {
       </div>
 
       {/* 2. Water Quality & Health Dashboard */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border border-space-800 flex flex-col gap-4 shadow-md">
-        <div className="flex justify-between items-center border-b border-space-800 pb-3">
+      <div className="bg-[#040c1d]/90 p-6 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex justify-between items-center border-b border-slate-800/80 pb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Activity className="text-cyan-400" size={18} />
             IN-SITU WATER QUALITY & BIOMASS TELEMETRY (CAGE ARRAY #04)
@@ -107,13 +107,13 @@ export function AquacultureDashboard() {
             { label: 'Dissolved O₂', value: '6.8 mg/L', target: '> 5.0 mg/L', icon: <Waves size={18} className="text-teal-400" />, status: 'Good' },
             { label: 'pH Level', value: '8.1', target: '7.8 - 8.4', icon: <Activity size={18} className="text-emerald-400" />, status: 'Balanced' },
           ].map((metric, i) => (
-            <div key={i} className="bg-space-950 p-4 rounded-xl border border-space-800 flex flex-col justify-between gap-2">
+            <div key={i} className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80 flex flex-col justify-between gap-2">
               <div className="flex items-center justify-between text-xs text-slate-400 tech-mono">
                 <span>{metric.label}</span>
                 {metric.icon}
               </div>
               <div className="text-xl font-bold text-white">{metric.value}</div>
-              <div className="flex justify-between items-center text-[10px] text-slate-400 border-t border-space-800/80 pt-1.5">
+              <div className="flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-800/80 pt-1.5">
                 <span>Target: {metric.target}</span>
                 <span className="text-emerald-400 font-bold">{metric.status}</span>
               </div>
@@ -123,8 +123,8 @@ export function AquacultureDashboard() {
       </div>
 
       {/* 3. Storm & Wave Impact 48h Forecast & Stress Simulator */}
-      <div className="bg-[#040c1d] p-5 rounded-xl border border-space-800 flex flex-col gap-4 shadow-md">
-        <div className="flex flex-wrap justify-between items-center gap-3 border-b border-space-800 pb-3">
+      <div className="bg-[#040c1d]/90 p-6 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
+        <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-800/80 pb-3">
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <CloudRain className="text-blue-400" size={18} />
@@ -139,10 +139,10 @@ export function AquacultureDashboard() {
               setHighSurgeSim(next);
               showToast(`🌊 High Surge Storm Simulation ${next ? 'ACTIVATED (2.8m Peak Wave)' : 'DEACTIVATED (Normal 1.1m Wave)'}`);
             }}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer border flex items-center gap-2 ${
+            className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all cursor-pointer border flex items-center gap-2 shadow-md ${
               highSurgeSim
                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow animate-pulse'
-                : 'bg-space-900 text-slate-300 border-space-700 hover:text-white'
+                : 'bg-[#020612]/90 text-slate-300 border-slate-700/60 hover:text-white'
             }`}
           >
             <Zap size={14} className={highSurgeSim ? 'text-amber-400' : 'text-slate-400'} />
@@ -151,24 +151,24 @@ export function AquacultureDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-center text-xs tech-mono">
-          <div className="bg-space-950 p-4 rounded-xl border border-space-800">
-            <div className="text-slate-400 text-[10px]">CURRENT WAVE HEIGHT</div>
-            <div className="text-cyan-400 font-bold text-lg mt-1">{highSurgeSim ? '2.8 m' : '1.1 m'}</div>
-            <div className={`text-[10px] font-semibold mt-1 ${highSurgeSim ? 'text-amber-400' : 'text-emerald-400'}`}>
-              {highSurgeSim ? '⚠️ High Structural Stress' : 'Low Structural Load'}
+          <div className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80">
+            <div className="text-slate-400 text-[10px] font-medium uppercase tracking-wider">CAGE MOORING TENSION</div>
+            <div className={`font-bold text-lg mt-1 ${highSurgeSim ? 'text-amber-400' : 'text-emerald-400'}`}>
+              {highSurgeSim ? '14.2 kN (HIGH STRESS)' : '4.8 kN (NOMINAL)'}
             </div>
+            <div className="text-[10px] text-slate-400 mt-1">Anchor Line Tension Limit: 25.0 kN</div>
           </div>
 
-          <div className="bg-space-950 p-4 rounded-xl border border-space-800">
-            <div className="text-slate-400 text-[10px]">24H PEAK SWELL</div>
-            <div className="text-amber-400 font-bold text-lg mt-1">{highSurgeSim ? '3.4 m' : '1.4 m'}</div>
-            <div className="text-[10px] text-amber-300 mt-1">
-              {highSurgeSim ? '🛑 Inspect Mooring Lines' : 'Moderate Cage Sway'}
+          <div className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80">
+            <div className="text-slate-400 text-[10px] font-medium uppercase tracking-wider">NET CAGE DEFORMATION</div>
+            <div className={`font-bold text-lg mt-1 ${highSurgeSim ? 'text-rose-400' : 'text-cyan-400'}`}>
+              {highSurgeSim ? '18% VOL REDUCTION' : '3% VOL REDUCTION'}
             </div>
+            <div className="text-[10px] text-slate-400 mt-1">Fish Swim Space Adequate</div>
           </div>
 
-          <div className="bg-space-950 p-4 rounded-xl border border-space-800">
-            <div className="text-slate-400 text-[10px]">CAGE TENSION LOAD</div>
+          <div className="bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80">
+            <div className="text-slate-400 text-[10px] font-medium uppercase tracking-wider">CAGE TENSION LOAD</div>
             <div className="text-teal-400 font-bold text-lg mt-1">{highSurgeSim ? '88% Stress' : '38% Load'}</div>
             <div className={`text-[10px] font-semibold mt-1 ${highSurgeSim ? 'text-rose-400' : 'text-emerald-400'}`}>
               {highSurgeSim ? 'Limit Operations' : 'Safe Operational Limit'}

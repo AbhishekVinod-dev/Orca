@@ -28,11 +28,11 @@ export default function AppLayout({
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-space-950">
-      {/* 1. Sidebar (Fixed left) */}
+      {/* 1. Sidebar (Fixed left on desktop, bottom bar on mobile) */}
       <Sidebar />
       
       {/* 2 & 3. Main Workspace Area with Top Persona Header */}
-      <div className="flex-1 flex flex-col w-full h-full overflow-hidden relative">
+      <div className="flex-1 flex flex-col w-full h-full overflow-hidden relative pb-16 md:pb-0">
         <PersonaHeaderBar />
         <main className="flex-1 flex w-full h-full relative overflow-hidden">
           {children}
