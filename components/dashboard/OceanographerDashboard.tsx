@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts';
 import { Cpu, Layers, Download, BookOpen, Check, Copy, AlertCircle, Eye, Zap, Database, RefreshCw } from 'lucide-react';
 import { useAppStore } from '../../lib/store';
+import IncidentReportCard from '../ui/area-chart-1';
 
 const ARGO_DEPTH_DATA = [
   { depth: 0, temp: 28.5, salinity: 34.8 },
@@ -153,63 +154,84 @@ export function OceanographerDashboard() {
         </div>
       </div>
 
-      {/* 2. Argo Float Depth Profile Chart (Recharts) */}
-      <div className="bg-[#040c1d]/90 p-5 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+      {/* 2. Scientific Data Grid: Argo Depth Profile + Incident Report Card */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+        {/* Argo Float Depth Profile Chart */}
+        <div className="bg-[#040c1d]/90 p-5 rounded-2xl border border-white/10 flex flex-col gap-4 shadow-2xl backdrop-blur-xl h-full justify-between">
           <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Cpu className="text-teal-400" size={18} />
-              ARGO FLOAT DEPTH PROFILE (FLOAT #2901783 • BAY OF BENGAL)
-            </h3>
-            <p className="text-xs text-slate-400">Vertical thermocline & halocline profile down to 2,000m depth.</p>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3 mb-4">
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Cpu className="text-teal-400" size={18} />
+                  ARGO FLOAT DEPTH PROFILE (FLOAT #2901783)
+                </h3>
+                <p className="text-xs text-slate-400">Vertical thermocline & halocline profile down to 2,000m depth.</p>
+              </div>
+
+              <div className="flex items-center gap-1 bg-[#020612] p-1 rounded-xl border border-slate-800/80 text-xs">
+                <button
+                  onClick={() => setChartMetric('both')}
+                  className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'both' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  All Metrics
+                </button>
+                <button
+                  onClick={() => setChartMetric('temp')}
+                  className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'temp' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Temp Only
+                </button>
+                <button
+                  onClick={() => setChartMetric('salinity')}
+                  className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'salinity' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Salinity Only
+                </button>
+              </div>
+            </div>
+
+            <div className="w-full h-72 bg-[#020612]/90 p-4 rounded-xl border border-slate-800/80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={ARGO_DEPTH_DATA} margin={{ top: 10, right: 20, left: -10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis 
+                    dataKey="depth" 
+                    stroke="#64748b" 
+                    tick={{ fontSize: 11 }} 
+                    label={{ value: 'Depth (Meters)', position: 'insideBottomRight', offset: -5, fill: '#64748b', fontSize: 11 }} 
+                  />
+                  <YAxis yAxisId="left" stroke="#06b6d4" tick={{ fontSize: 11 }} domain={[0, 32]} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#10b981" tick={{ fontSize: 11 }} domain={[34, 36]} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#050c1e', borderColor: '#06b6d4', borderRadius: '12px', fontSize: '12px', color: '#fff' }} 
+                  />
+                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '6px' }} />
+                  {(chartMetric === 'both' || chartMetric === 'temp') && (
+                    <Line yAxisId="left" type="monotone" dataKey="temp" name="Temperature (°C)" stroke="#06b6d4" strokeWidth={2.5} dot={{ r: 4 }} />
+                  )}
+                  {(chartMetric === 'both' || chartMetric === 'salinity') && (
+                    <Line yAxisId="right" type="monotone" dataKey="salinity" name="Salinity (PSU)" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4 }} />
+                  )}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1 bg-[#020612] p-1 rounded-xl border border-slate-800/80 text-xs">
-            <button
-              onClick={() => setChartMetric('both')}
-              className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'both' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            >
-              All Metrics
-            </button>
-            <button
-              onClick={() => setChartMetric('temp')}
-              className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'temp' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            >
-              Temp Only
-            </button>
-            <button
-              onClick={() => setChartMetric('salinity')}
-              className={`px-3 py-1 rounded-lg font-semibold transition-all ${chartMetric === 'salinity' ? 'bg-cyan-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            >
-              Salinity Only
-            </button>
+          <div className="grid grid-cols-2 gap-3 text-xs tech-mono pt-3 border-t border-slate-800/80 mt-4">
+            <div className="bg-[#020612]/80 p-3 rounded-xl border border-slate-800/80">
+              <span className="text-slate-400 text-[10px] block">THERMOCLINE DEPTH</span>
+              <span className="text-cyan-400 font-bold text-sm">180 M</span>
+            </div>
+            <div className="bg-[#020612]/80 p-3 rounded-xl border border-slate-800/80">
+              <span className="text-slate-400 text-[10px] block">MIXED LAYER TEMP</span>
+              <span className="text-emerald-400 font-bold text-sm">28.5 °C</span>
+            </div>
           </div>
         </div>
 
-        <div className="w-full h-64 bg-[#020612]/90 p-4 rounded-xl border border-slate-800/80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={ARGO_DEPTH_DATA} margin={{ top: 10, right: 20, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis 
-                dataKey="depth" 
-                stroke="#64748b" 
-                tick={{ fontSize: 11 }} 
-                label={{ value: 'Depth (Meters)', position: 'insideBottomRight', offset: -5, fill: '#64748b', fontSize: 11 }} 
-              />
-              <YAxis yAxisId="left" stroke="#06b6d4" tick={{ fontSize: 11 }} domain={[0, 32]} />
-              <YAxis yAxisId="right" orientation="right" stroke="#10b981" tick={{ fontSize: 11 }} domain={[34, 36]} />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#050c1e', borderColor: '#06b6d4', borderRadius: '12px', fontSize: '12px', color: '#fff' }} 
-              />
-              <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '6px' }} />
-              {(chartMetric === 'both' || chartMetric === 'temp') && (
-                <Line yAxisId="left" type="monotone" dataKey="temp" name="Temperature (°C)" stroke="#06b6d4" strokeWidth={2.5} dot={{ r: 4 }} />
-              )}
-              {(chartMetric === 'both' || chartMetric === 'salinity') && (
-                <Line yAxisId="right" type="monotone" dataKey="salinity" name="Salinity (PSU)" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4 }} />
-              )}
-            </LineChart>
-          </ResponsiveContainer>
+        {/* Integrated area-chart-1 UI Component */}
+        <div className="w-full flex justify-center">
+          <IncidentReportCard />
         </div>
       </div>
 
