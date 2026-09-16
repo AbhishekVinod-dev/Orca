@@ -8,7 +8,7 @@ export type GlobeTarget = {
   desc?: string;
 };
 
-export type UserRole = 'fisherman' | 'oceanographer' | 'policymaker' | 'aquaculture' | 'shipping' | 'shipment';
+export type UserRole = 'fisherman' | 'oceanographer' | 'policymaker' | 'aquaculture' | 'shipping';
 export type DisclosureLevel = 1 | 2 | 3 | 4 | 5;
 export type BandwidthMode = 'normal' | 'low';
 

@@ -30,8 +30,7 @@ export function ContextPanel() {
       case 'oceanographer': return <OceanographerDashboard />;
       case 'policymaker': return <PolicymakerDashboard />;
       case 'aquaculture': return <AquacultureDashboard />;
-      case 'shipping':
-      case 'shipment': return <ShippingDashboard />;
+      case 'shipping': return <ShippingDashboard />;
       default: return <FishermanDashboard />;
     }
   };

@@ -21,6 +21,7 @@
     "react-dom": "19.2.8",
     "react-leaflet": "^5.0.0",
     "react-markdown": "^10.1.0",
+    "reaviz": "^16.2.2",
     "recharts": "^3.10.1",
     "three": "^0.185.1",
     "zustand": "^5.0.15"

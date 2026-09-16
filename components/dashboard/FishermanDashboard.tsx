@@ -1,18 +1,92 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ShieldCheck, AlertTriangle, XCircle, Anchor, Navigation, Mic, Radio, Fish, CheckCircle2, CloudDownload } from 'lucide-react';
+import { 
+  ShieldCheck, 
+  AlertTriangle, 
+  XCircle, 
+  Anchor, 
+  Navigation, 
+  Radio, 
+  Fish, 
+  CheckCircle2, 
+  CloudDownload, 
+  RefreshCw, 
+  TrendingUp, 
+  Volume2, 
+  VolumeX, 
+  MapPin, 
+  Clock, 
+  Zap,
+  PhoneCall
+} from 'lucide-react';
 import { useAppStore } from '../../lib/store';
 
+interface PFZZone {
+  id: string;
+  species: string;
+  bearing: string;
+  lat: number;
+  lon: number;
+  sst: number;
+  chlorophyll: number;
+  match: number;
+  depth: string;
+}
+
+const PFZ_ZONES: PFZZone[] = [
+  { id: 'PFZ-ALPHA', species: 'Sardinella (Oil Sardine)', bearing: '12 km NE', lat: 13.15, lon: 80.35, sst: 28.2, chlorophyll: 2.1, match: 94, depth: '18 - 25 m' },
+  { id: 'PFZ-BRAVO', species: 'Thunnus (Yellowfin Tuna)', bearing: '24 km E', lat: 13.08, lon: 80.48, sst: 27.9, chlorophyll: 1.8, match: 88, depth: '45 - 60 m' },
+  { id: 'PFZ-CHARLIE', species: 'Scomberomorus (Seer Fish)', bearing: '18 km SE', lat: 12.95, lon: 80.41, sst: 28.0, chlorophyll: 2.4, match: 91, depth: '30 - 40 m' },
+];
+
+const FISH_MARKET_PRICES = [
+  { name: 'Sardinella (Oil Sardine)', price: '₹145/kg', trend: '+4%', isUp: true },
+  { name: 'Yellowfin Tuna', price: '₹290/kg', trend: '+6%', isUp: true },
+  { name: 'Indian Mackerel', price: '₹185/kg', trend: '-2%', isUp: false },
+  { name: 'Seer Fish (King Mackerel)', price: '₹420/kg', trend: '+8%', isUp: true },
+];
+
 export function FishermanDashboard() {
-  const { setGlobeTarget, setRoutePath } = useAppStore();
+  const { setGlobeTarget, setRoutePath, setViewMode } = useAppStore();
   const [catchModalOpen, setCatchModalOpen] = useState(false);
   const [catchSuccess, setCatchSuccess] = useState(false);
   const [species, setSpecies] = useState('Sardinella');
   const [weightKg, setWeightKg] = useState('150');
+  const [vesselName, setVesselName] = useState('Kadal Kani-04');
+  
+  // Interactive UI state
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState('10 mins ago');
 
-  // Simulated safety status (Safe to Sail)
-  const [safetyStatus] = useState<'safe' | 'caution' | 'danger'>('safe');
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleRefreshWeatherData = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setIsRefreshing(false);
+      setLastUpdated('Just now');
+      showToast('⚡ Oceanographic telemetry re-synced from Oceansat-3 & NIOT buoy!');
+    }, 1000);
+  };
+
+  const handleNavigateToZone = (zone: PFZZone) => {
+    setGlobeTarget({
+      lat: zone.lat,
+      lon: zone.lon,
+      title: `${zone.id} - ${zone.species}`,
+      severity: 'info',
+      desc: `Bearing: ${zone.bearing} | SST: ${zone.sst}°C | Chlorophyll: ${zone.chlorophyll} mg/m³`
+    });
+    setRoutePath([[13.0827, 80.2707], [zone.lat, zone.lon]]);
+    setViewMode('2d');
+    showToast(`🗺️ Navigation route set to ${zone.id} (${zone.bearing})! Map centered.`);
+  };
 
   const handleLogCatch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,92 +94,163 @@ export function FishermanDashboard() {
     setTimeout(() => {
       setCatchSuccess(false);
       setCatchModalOpen(false);
-    }, 1800);
+      showToast(`✅ Catch of ${weightKg}kg ${species} submitted to ISRO validation database.`);
+    }, 1500);
   };
 
   return (
-    <div className="w-full h-full flex flex-col gap-4 overflow-y-auto p-4 no-scrollbar">
+    <div className="w-full h-full flex flex-col gap-6 p-6 overflow-y-auto no-scrollbar max-w-7xl mx-auto">
+
+      {/* Floating Action Toast */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#050c1e] border border-cyan-500/50 text-cyan-200 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <Zap size={18} className="text-cyan-400 animate-bounce" />
+          <span className="text-xs font-semibold">{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Header Banner & Live Status */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#040c1d]/90 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-2xl">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-bold text-white tracking-wide">FISHERMAN OCEANIC ADVISORY</h1>
+            <span className="bg-teal-500/15 border border-teal-500/30 text-teal-300 text-[10px] font-bold px-3 py-1 rounded-full tech-mono">
+              CHENNAI HARBOUR SECTOR
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+            <MapPin size={13} className="text-cyan-400" />
+            Coromandel Coast • Sector 04 (13.0827°N, 80.2707°E)
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleRefreshWeatherData}
+            disabled={isRefreshing}
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#020612]/90 hover:bg-space-800 border border-slate-700/60 text-slate-200 hover:text-white rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-md"
+          >
+            <RefreshCw size={14} className={`text-cyan-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>{isRefreshing ? 'Updating...' : 'Sync Live Telemetry'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setAudioPlaying(!audioPlaying);
+              showToast(audioPlaying ? 'Audio bulletin paused.' : '🔊 Playing coastal weather audio bulletin in Tamil/English...');
+            }}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer shadow-md ${
+              audioPlaying 
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse' 
+                : 'bg-[#020612]/90 border-slate-700/60 text-slate-300 hover:text-white'
+            }`}
+          >
+            {audioPlaying ? <VolumeX size={14} /> : <Volume2 size={14} className="text-amber-400" />}
+            <span>{audioPlaying ? 'Mute Bulletin' : 'Voice Bulletin'}</span>
+          </button>
+        </div>
+      </div>
 
       {/* 1. Hero Safety Status Banner */}
-      <div className={`p-5 rounded-lg border flex flex-col gap-3 shadow-xl transition-all ${
-        safetyStatus === 'safe'
-          ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-100'
-          : safetyStatus === 'caution'
-          ? 'bg-amber-950/40 border-amber-500/50 text-amber-100'
-          : 'bg-rose-950/40 border-rose-500/50 text-rose-100'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {safetyStatus === 'safe' && <ShieldCheck size={28} className="text-emerald-400 animate-pulse" />}
-            {safetyStatus === 'caution' && <AlertTriangle size={28} className="text-amber-400 animate-bounce" />}
-            {safetyStatus === 'danger' && <XCircle size={28} className="text-rose-500 animate-ping" />}
+      <div className="p-6 rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 via-[#031510] to-[#040e1a] text-emerald-100 shadow-2xl flex flex-col gap-4 relative overflow-hidden backdrop-blur-xl">
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5">
+            <div className="p-3 bg-emerald-500/20 border border-emerald-500/40 rounded-2xl shadow-lg">
+              <ShieldCheck size={34} className="text-emerald-400 animate-pulse" />
+            </div>
             <div>
-              <h2 className="text-xl font-bold tracking-wide">
-                {safetyStatus === 'safe' && '✅ SAFE TO SAIL'}
-                {safetyStatus === 'caution' && '⚠️ CAUTION: HIGH SWELL'}
-                {safetyStatus === 'danger' && '🛑 DANGER: DO NOT SAIL'}
-              </h2>
-              <p className="text-xs text-slate-300 tech-mono">CHENNAI & COROMANDEL COASTAL SECTOR</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold tracking-wide text-white">✅ SAFE TO SAIL — OPTIMAL SEAFARING CONDITIONS</h2>
+                <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full tech-mono border border-emerald-500/40">
+                  FLAG 0 (GREEN)
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 tech-mono mt-0.5">
+                COROMANDEL & BAY OF BENGAL COASTAL WATERS (0 - 30 NM)
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-space-900/80 px-2.5 py-1 rounded text-[11px] text-teal-400 border border-teal-500/30 tech-mono">
-            <CloudDownload size={14} />
-            <span>20m ago • Offline Cache Ready</span>
+
+          <div className="flex items-center gap-2 bg-[#020612]/80 px-3.5 py-1.5 rounded-xl border border-teal-500/30 text-xs text-teal-300 tech-mono">
+            <CloudDownload size={14} className="text-teal-400" />
+            <span>Cache: {lastUpdated} • Low-BW Ready</span>
           </div>
         </div>
 
-        <p className="text-sm font-medium leading-relaxed bg-space-950/50 p-3 rounded border border-space-800">
-          "Wave height is knee-high (1.1m). Wind is gentle from East (11 kts). Conditions are optimal for coastal gillnetting near Chennai sector today."
-        </p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-[#020612]/80 p-4 rounded-xl border border-slate-800/80 text-xs tech-mono">
+          <div>
+            <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider mb-0.5">WAVE HEIGHT (Hs)</span>
+            <span className="text-emerald-400 font-bold text-sm">1.1 m (Knee High)</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider mb-0.5">SURFACE WIND</span>
+            <span className="text-white font-bold text-sm">11 Kts (East-Northeast)</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider mb-0.5">CURRENT SPEED</span>
+            <span className="text-cyan-400 font-bold text-sm">0.6 Knots (Southerly)</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider mb-0.5">VISIBILITY</span>
+            <span className="text-white font-bold text-sm">12.5 KM (Clear Sky)</span>
+          </div>
+        </div>
       </div>
 
-      {/* 2. PFZ Quick Fishing Zone Cards */}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
-            <Fish size={16} className="text-cyan-400" />
-            POTENTIAL FISHING ZONES (PFZ) NEAR YOU
-          </h3>
+      {/* 2. Potential Fishing Zones (PFZ) Section */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <Fish size={18} className="text-cyan-400" />
+              POTENTIAL FISHING ZONES (PFZ) — HIGH CONFIDENCE NODES
+            </h3>
+            <p className="text-xs text-slate-400">Generated from Oceansat-3 SST & Chlorophyll-a thermal front convergence models.</p>
+          </div>
+
           <button
             onClick={() => setCatchModalOpen(true)}
-            className="text-xs px-3 py-1 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded transition-colors flex items-center gap-1.5 shadow"
+            className="px-4 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg shadow-teal-950/50 cursor-pointer active:scale-[0.98]"
           >
-            <Anchor size={14} />
+            <Anchor size={15} />
             Log Ground-Truth Catch
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {[
-            { id: 'PFZ-ALPHA', species: 'Sardinella / Mackerel', bearing: '12 km NE', lat: 13.15, lon: 80.35, sst: 28.2, chlorophyll: 2.1, match: 94 },
-            { id: 'PFZ-BRAVO', species: 'Tuna / Seer Fish', bearing: '24 km E', lat: 13.08, lon: 80.48, sst: 27.9, chlorophyll: 1.8, match: 88 }
-          ].map((zone) => (
-            <div key={zone.id} className="glass-panel p-4 rounded-md border-l-4 border-l-cyan-500 flex flex-col gap-3">
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-white text-sm">{zone.id}</span>
-                <span className="text-xs font-bold text-teal-400 tech-mono bg-teal-500/10 px-2 py-0.5 rounded">{zone.match}% MATCH</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {PFZ_ZONES.map((zone) => (
+            <div 
+              key={zone.id} 
+              className="bg-[#040c1d]/90 border border-white/10 hover:border-cyan-500/40 p-5 rounded-2xl flex flex-col justify-between gap-4 transition-all duration-300 shadow-2xl backdrop-blur-xl group relative overflow-hidden"
+            >
+              <div className="absolute -top-10 -right-10 w-28 h-28 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="flex flex-col gap-2.5">
+                <div className="flex justify-between items-center border-b border-slate-800/80 pb-2.5">
+                  <span className="font-bold text-white text-sm tracking-wide">{zone.id}</span>
+                  <span className="text-xs font-bold text-teal-300 tech-mono bg-teal-500/15 border border-teal-500/30 px-3 py-0.5 rounded-full">
+                    {zone.match}% MATCH
+                  </span>
+                </div>
+
+                <div className="text-xs text-slate-300">
+                  <span className="text-slate-400">Target Species:</span>{' '}
+                  <span className="font-semibold text-cyan-300">{zone.species}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px] tech-mono bg-[#020612]/80 p-3 rounded-xl border border-slate-800/80">
+                  <div>Distance: <span className="text-white font-bold">{zone.bearing}</span></div>
+                  <div>SST: <span className="text-white font-bold">{zone.sst}°C</span></div>
+                  <div>Chl-a: <span className="text-emerald-400 font-bold">{zone.chlorophyll} mg/m³</span></div>
+                  <div>Target Depth: <span className="text-amber-300 font-bold">{zone.depth}</span></div>
+                </div>
               </div>
-              <div className="text-xs text-slate-300">
-                <span className="text-slate-400">Target Fish:</span> <span className="font-semibold text-cyan-300">{zone.species}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-[11px] tech-mono bg-space-950/60 p-2 rounded">
-                <div>Distance: <span className="text-white font-bold">{zone.bearing}</span></div>
-                <div>SST: <span className="text-white font-bold">{zone.sst}°C</span></div>
-                <div>Chlorophyll: <span className="text-white font-bold">{zone.chlorophyll} mg/m³</span></div>
-                <div>GPS: <span className="text-white font-bold">{zone.lat}°N</span></div>
-              </div>
+
               <button
-                onClick={() => {
-                  setGlobeTarget({
-                    lat: zone.lat,
-                    lon: zone.lon,
-                    title: zone.id,
-                    severity: 'info',
-                    desc: `Target: ${zone.species} | Bearing: ${zone.bearing} | Match: ${zone.match}%`
-                  });
-                  setRoutePath([[13.0827, 80.2707], [zone.lat, zone.lon]]);
-                }}
-                className="w-full py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded flex items-center justify-center gap-1.5 transition-colors shadow"
+                onClick={() => handleNavigateToZone(zone)}
+                className="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-cyan-950/50 cursor-pointer active:scale-[0.98]"
               >
                 <Navigation size={14} />
                 NAVIGATE TO ZONE
@@ -115,29 +260,99 @@ export function FishermanDashboard() {
         </div>
       </div>
 
-      {/* 3. Ground-Truth Catch Logging Modal */}
-      {catchModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-space-950 border border-space-800 p-6 rounded-lg max-w-md w-full flex flex-col gap-4 shadow-2xl">
-            <h3 className="text-base font-bold text-white flex items-center gap-2 border-b border-space-800 pb-3">
-              <Fish className="text-teal-400" size={18} />
-              Submit Ground-Truth Catch Observation
+      {/* 3. Fish Market Economics & Emergency SOS Bar Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Fish Harbour Prices Card */}
+        <div className="md:col-span-2 bg-[#040c1d]/90 border border-white/10 p-5 rounded-2xl flex flex-col gap-3 shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <TrendingUp size={16} className="text-emerald-400" />
+              LIVE CHENNAI FISH HARBOUR LANDING PRICES
             </h3>
+            <span className="text-[10px] text-slate-400 tech-mono">Updated today 06:00 IST</span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {FISH_MARKET_PRICES.map((item, idx) => (
+              <div key={idx} className="bg-[#020612]/80 p-3 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                <span className="text-[11px] text-slate-400 line-clamp-1">{item.name}</span>
+                <div className="flex items-baseline justify-between mt-1.5">
+                  <span className="text-sm font-bold text-white">{item.price}</span>
+                  <span className={`text-[10px] font-bold tech-mono ${item.isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {item.trend}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Coastal Guard Emergency Distress Link */}
+        <div className="bg-[#040c1d]/90 border border-white/10 p-5 rounded-2xl flex flex-col justify-between gap-3 shadow-2xl backdrop-blur-xl">
+          <div>
+            <h3 className="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/80 pb-2.5">
+              <PhoneCall size={16} className="text-rose-400" />
+              COAST GUARD DISTRESS RADIO
+            </h3>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              Instant satellite-relayed emergency beacon to Indian Coast Guard Chennai Maritime Rescue Coordination Centre (MRCC).
+            </p>
+          </div>
+
+          <button
+            onClick={() => showToast('🚨 TEST DISTRESS SIGNAL: Coast Guard MRCC link verified. Signal strong (VHF Ch 16).')}
+            className="w-full py-2.5 bg-rose-600/20 border border-rose-500/50 hover:bg-rose-600/30 text-rose-300 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg active:scale-[0.98]"
+          >
+            <Radio size={14} className="animate-pulse text-rose-400" />
+            TEST DISTRESS CHANNEL (VHF 16)
+          </button>
+        </div>
+      </div>
+
+      {/* 4. Ground-Truth Catch Logging Modal */}
+      {catchModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#050c1e] border border-cyan-500/40 p-6 rounded-2xl max-w-md w-full flex flex-col gap-4 shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-space-800 pb-3">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Fish className="text-teal-400" size={18} />
+                Submit Ground-Truth Catch Validation
+              </h3>
+              <button
+                onClick={() => setCatchModalOpen(false)}
+                className="text-slate-400 hover:text-white text-xs p-1"
+              >
+                ✕
+              </button>
+            </div>
 
             {catchSuccess ? (
-              <div className="p-6 text-center text-emerald-400 flex flex-col items-center gap-2">
-                <CheckCircle2 size={40} />
-                <p className="font-bold text-sm">Catch Observation Logged!</p>
-                <p className="text-xs text-slate-400">Thank you for validating ISRO PFZ satellite models.</p>
+              <div className="py-8 text-center text-emerald-400 flex flex-col items-center gap-3">
+                <CheckCircle2 size={48} className="animate-bounce" />
+                <p className="font-bold text-base">Catch Observation Recorded!</p>
+                <p className="text-xs text-slate-300 max-w-xs">
+                  Thank you! Your feedback continuously tunes ISRO Oceansat-3 PFZ predictive accuracy algorithms.
+                </p>
               </div>
             ) : (
-              <form onSubmit={handleLogCatch} className="flex flex-col gap-3">
+              <form onSubmit={handleLogCatch} className="flex flex-col gap-3 text-xs">
                 <div>
-                  <label className="text-xs text-slate-400 font-medium block mb-1">Observed Fish Species</label>
+                  <label className="text-slate-300 font-medium block mb-1">Vessel / Boat Identifier</label>
+                  <input
+                    type="text"
+                    value={vesselName}
+                    onChange={(e) => setVesselName(e.target.value)}
+                    className="w-full bg-space-950 border border-space-700 text-white rounded-lg p-2.5 focus:outline-none focus:border-cyan-500 tech-mono"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-slate-300 font-medium block mb-1">Observed Target Species</label>
                   <select
                     value={species}
                     onChange={(e) => setSpecies(e.target.value)}
-                    className="w-full bg-space-900 border border-space-700 text-white text-xs rounded p-2 focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-space-950 border border-space-700 text-white rounded-lg p-2.5 focus:outline-none focus:border-cyan-500"
                   >
                     <option value="Sardinella">Sardinella (Oil Sardine)</option>
                     <option value="Rastrelliger">Rastrelliger (Indian Mackerel)</option>
@@ -145,28 +360,34 @@ export function FishermanDashboard() {
                     <option value="Scomberomorus">Scomberomorus (Seer Fish)</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="text-xs text-slate-400 font-medium block mb-1">Estimated Catch Weight (kg)</label>
+                  <label className="text-slate-300 font-medium block mb-1">Estimated Total Catch Weight (kg)</label>
                   <input
                     type="number"
                     value={weightKg}
                     onChange={(e) => setWeightKg(e.target.value)}
-                    className="w-full bg-space-900 border border-space-700 text-white text-xs rounded p-2 focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-space-950 border border-space-700 text-white rounded-lg p-2.5 focus:outline-none focus:border-cyan-500 tech-mono"
                     placeholder="e.g. 150"
                     required
                   />
                 </div>
-                <div className="flex justify-end gap-2 pt-2">
+
+                <div className="bg-space-950/60 p-2.5 rounded-lg border border-space-800 text-[10px] text-slate-400 tech-mono">
+                  GPS Position: 13.150°N, 80.350°E (Auto-captured via GPS)
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3 border-t border-space-800">
                   <button
                     type="button"
                     onClick={() => setCatchModalOpen(false)}
-                    className="px-4 py-1.5 text-xs text-slate-400 hover:text-white bg-space-900 rounded"
+                    className="px-4 py-2 text-slate-400 hover:text-white bg-space-900 rounded-lg cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-1.5 text-xs bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded"
+                    className="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded-lg shadow-md cursor-pointer"
                   >
                     Submit Catch Record
                   </button>
@@ -180,3 +401,4 @@ export function FishermanDashboard() {
     </div>
   );
 }
+

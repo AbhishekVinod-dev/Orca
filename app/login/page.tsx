@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppStore, UserRole } from '../../lib/store';
-import { Shield, Lock, Mail, ArrowRight, Anchor, Cpu, ShieldAlert, Waves, Ship, Package, ChevronDown, Check, Sparkles } from 'lucide-react';
+import { Shield, Lock, Mail, ArrowRight, Anchor, Cpu, ShieldAlert, Waves, Ship, ChevronDown, Check, Sparkles } from 'lucide-react';
 
 const ROLE_OPTIONS: { id: UserRole; label: string; desc: string; icon: React.ReactNode; color: string }[] = [
   { id: 'fisherman', label: 'Fisherman', desc: 'Coastal safety & PFZ fishing zone advisories', icon: <Anchor size={16} />, color: 'text-amber-400 border-amber-500/40 bg-amber-500/10' },
@@ -11,7 +11,6 @@ const ROLE_OPTIONS: { id: UserRole; label: string; desc: string; icon: React.Rea
   { id: 'policymaker', label: 'Policymaker', desc: '12 NM / EEZ boundaries & regulatory reports', icon: <ShieldAlert size={16} />, color: 'text-rose-400 border-rose-500/40 bg-rose-500/10' },
   { id: 'aquaculture', label: 'Aquaculture', desc: 'Water telemetry, HAB alerts & cage forecasts', icon: <Waves size={16} />, color: 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10' },
   { id: 'shipping', label: 'Shipping & Maritime', desc: 'Route optimization & port draft advisories', icon: <Ship size={16} />, color: 'text-blue-400 border-blue-500/40 bg-blue-500/10' },
-  { id: 'shipment', label: 'Shipment', desc: 'Cargo tracking, vessel manifests & port logistics', icon: <Package size={16} />, color: 'text-indigo-400 border-indigo-500/40 bg-indigo-500/10' },
 ];
 
 export default function LoginPage() {
