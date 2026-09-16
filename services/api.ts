@@ -66,26 +66,11 @@ async function streamRealChat(
   };
   console.log('[Chat API] Sending request to backend agent:', { ...requestBody, prompt: query.substring(0, 50) });
 
-  let endpoint = `${API_URL}/api/chat`;
-  let res = await fetch(endpoint, {
+  const res = await fetch(`${API_URL}/api/v1/agent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(requestBody),
   });
-
-  if (!res.ok) {
-    // Try fallback to /api/v1/agent if /api/chat is not available
-    try {
-      const fallbackRes = await fetch(`${API_URL}/api/v1/agent`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-      });
-      if (fallbackRes.ok && fallbackRes.body) {
-        res = fallbackRes;
-      }
-    } catch {}
-  }
 
   if (!res.ok || !res.body) {
     throw new Error(`Agent request failed with status: ${res.status}`);
@@ -215,13 +200,27 @@ export const apiService = {
   },
 
   getEEZBoundaries: async (): Promise<any | null> => {
-    // Backend endpoint /api/v1/eez_boundaries is not yet implemented
-    return null;
+    if (!API_URL) return null;
+    try {
+      const res = await fetch(`${API_URL}/api/v1/eez_boundaries`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      console.error("Failed to fetch EEZ Boundaries", e);
+      return null;
+    }
   },
 
-  getRawPFZ: async (_zone: string): Promise<any | null> => {
-    // Backend endpoint /api/v1/pfz/{zone} is not yet implemented
-    return null;
+  getRawPFZ: async (zone: string): Promise<any | null> => {
+    if (!API_URL) return null;
+    try {
+      const res = await fetch(`${API_URL}/api/v1/pfz/${encodeURIComponent(zone)}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) {
+      console.error("Failed to fetch PFZ data", e);
+      return null;
+    }
   },
 
   getAlerts: async (): Promise<MarineAlert[]> => {
@@ -229,12 +228,15 @@ export const apiService = {
       await delay(500);
       return MOCK_ALERTS;
     }
-    const res = await fetch(`${API_URL}/api/alerts`);
-    if (!res.ok) {
-      throw new Error(`GET /api/alerts failed: ${res.status}`);
+    try {
+      const res = await fetch(`${API_URL}/api/v1/alerts`);
+      if (!res.ok) return MOCK_ALERTS;
+      const alerts: BackendAlert[] = await res.json();
+      return alerts.map(toMarineAlert);
+    } catch (e) {
+      console.error("Failed to fetch alerts", e);
+      return MOCK_ALERTS;
     }
-    const alerts: BackendAlert[] = await res.json();
-    return alerts.map(toMarineAlert);
   },
 
   getEvidence: async (): Promise<EvidenceSource[]> => {
