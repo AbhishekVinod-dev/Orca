@@ -3,6 +3,7 @@
 import { ShieldAlert, AlertTriangle, Info, Bell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '../../../lib/store';
+<<<<<<< HEAD
 import { useState } from 'react';
 
 const mockAlerts = [
@@ -13,10 +14,25 @@ const mockAlerts = [
   { id: 'al-05', title: 'Oil Slick Detected', severity: 'critical', time: '1 DAY AGO', desc: 'SAR satellite identified possible crude oil spill spanning 12km in Mumbai High region.', lat: 19.3, lon: 71.3 },
   { id: 'al-06', title: 'Marine Heatwave', severity: 'warning', time: '2 DAYS AGO', desc: 'SST anomalies exceeding +2.5°C persisting. High risk of coral bleaching in the Gulf of Mannar.', lat: 8.8, lon: 79.2 },
 ];
+=======
+import { useEffect, useState } from 'react';
+import { apiService } from '../../../services/api';
+import { MarineAlert } from '../../../types';
+
+// This app's alert-card severities are critical/warning/info; the backend's
+// Alert.severity is critical/high/moderate/low (docs/MIGRATION_TRACKER.md
+// Contract Parity Gate). Mapped here at the display boundary.
+function toCardSeverity(severity: MarineAlert['severity']): 'critical' | 'warning' | 'info' {
+  if (severity === 'critical') return 'critical';
+  if (severity === 'high' || severity === 'moderate') return 'warning';
+  return 'info';
+}
+>>>>>>> frontend-changes
 
 export default function AlertsPage() {
   const router = useRouter();
   const { setGlobeTarget } = useAppStore();
+<<<<<<< HEAD
   const [alerts, setAlerts] = useState(mockAlerts);
 
   const handleViewOnMap = (alert: any) => {
@@ -26,6 +42,26 @@ export default function AlertsPage() {
       title: alert.title,
       severity: alert.severity,
       desc: alert.desc
+=======
+  const [alerts, setAlerts] = useState<MarineAlert[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiService.getAlerts()
+      .then(setAlerts)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleViewOnMap = (alert: MarineAlert) => {
+    if (!alert.coordinates) return;
+    const [lat, lon] = alert.coordinates;
+    setGlobeTarget({
+      lat,
+      lon,
+      title: alert.title,
+      severity: toCardSeverity(alert.severity),
+      desc: alert.description
+>>>>>>> frontend-changes
     });
     router.push('/app');
   };
@@ -39,6 +75,7 @@ export default function AlertsPage() {
        
        <h1 className="text-3xl font-semibold text-white tracking-wide mb-8">Active Hazards & Warnings</h1>
        
+<<<<<<< HEAD
        <div className="flex flex-col gap-4 max-w-4xl">
          {alerts.map((alert) => (
            <div key={alert.id} className="glass-panel p-6 rounded-sm border-l-4 border-l-transparent" style={{ borderLeftColor: alert.severity === 'critical' ? '#f43f5e' : alert.severity === 'warning' ? '#f59e0b' : '#3b82f6' }}>
@@ -50,10 +87,28 @@ export default function AlertsPage() {
                  {alert.severity === 'info' && <Info size={24} className="text-blue-500" />}
                </div>
                
+=======
+       {loading && <p className="text-slate-500 text-sm">Loading alerts...</p>}
+
+       <div className="flex flex-col gap-4 max-w-4xl">
+         {alerts.map((alert) => {
+           const cardSeverity = toCardSeverity(alert.severity);
+           return (
+           <div key={alert.id} className="glass-panel p-6 rounded-sm border-l-4 border-l-transparent" style={{ borderLeftColor: cardSeverity === 'critical' ? '#f43f5e' : cardSeverity === 'warning' ? '#f59e0b' : '#3b82f6' }}>
+             <div className="flex items-start gap-4">
+
+               <div className="mt-1">
+                 {cardSeverity === 'critical' && <AlertTriangle size={24} className="text-rose-500" />}
+                 {cardSeverity === 'warning' && <AlertTriangle size={24} className="text-amber-500" />}
+                 {cardSeverity === 'info' && <Info size={24} className="text-blue-500" />}
+               </div>
+
+>>>>>>> frontend-changes
                <div className="flex-1">
                  <div className="flex items-center justify-between mb-2">
                    <h3 className="text-white font-medium text-lg">{alert.title}</h3>
                    <span className="tech-mono text-xs text-slate-500 flex items-center gap-2">
+<<<<<<< HEAD
                      <Bell size={12} /> {alert.time}
                    </span>
                  </div>
@@ -67,6 +122,23 @@ export default function AlertsPage() {
                      VIEW ON MAP
                    </button>
                    <button 
+=======
+                     <Bell size={12} /> {new Date(alert.timestamp).toLocaleString()}
+                   </span>
+                 </div>
+                 <p className="text-slate-400 text-sm leading-relaxed">{alert.description}</p>
+
+                 <div className="mt-4 flex gap-3">
+                   {alert.coordinates && (
+                     <button
+                       onClick={() => handleViewOnMap(alert)}
+                       className="px-4 py-2 bg-space-800 text-white text-xs font-medium rounded-sm hover:bg-space-700 transition-colors"
+                     >
+                       VIEW ON MAP
+                     </button>
+                   )}
+                   <button
+>>>>>>> frontend-changes
                      onClick={() => setAlerts(prev => prev.filter(a => a.id !== alert.id))}
                      className="px-4 py-2 border border-space-700 text-slate-300 text-xs font-medium rounded-sm hover:bg-space-800 transition-colors"
                    >
@@ -74,10 +146,18 @@ export default function AlertsPage() {
                    </button>
                  </div>
                </div>
+<<<<<<< HEAD
                
              </div>
            </div>
          ))}
+=======
+
+             </div>
+           </div>
+           );
+         })}
+>>>>>>> frontend-changes
        </div>
     </div>
   );

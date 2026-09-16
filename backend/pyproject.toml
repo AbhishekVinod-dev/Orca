@@ -1,0 +1,19 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "asyncpg>=0.31.0",
+    "beautifulsoup4>=4.15.0",
+    "dotenv>=0.9.9",
+    "fastapi[standard]>=0.141.1",
+    "langchain>=1.3.2",
+    "langchain-groq>=1.1.3",
+    "playwright>=1.62.0",
+    "psycopg2>=2.9.12",
+    "requests>=2.34.2",
+    "sarvamai>=0.1.31",
+    "websockets>=17.1",
+]
